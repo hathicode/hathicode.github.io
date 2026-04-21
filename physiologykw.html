@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Physiology Active Recall</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap');
+
+  :root {
+      --bg: #0a0f1c;
+      --glass: rgba(255,255,255,0.06);
+      --muted: #9fb2d0;
+      --text: #e8f2ff;
+      --accent: #7dd3fc;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --shadow: 0 16px 60px rgba(5,12,34,.55);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #070d18 0%, #0c1528 60%, #090f1d 100%);
+      color: var(--text);
+      font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center; 
+      align-items: center; /* Center items vertically for login */
+      flex-direction: column;
+      overflow-x: hidden;
+      padding: 20px;
+  }
+
+  /* --- LOGIN & LOADING SCREENS --- */
+  #loginScreen { 
+      width: 100%; 
+      max-width: 420px; 
+      text-align: center; 
+      background: rgba(255,255,255,.02); 
+      border: 1px solid rgba(255,255,255,.05); 
+      border-radius: 18px; 
+      padding: 40px 30px; 
+      box-shadow: var(--shadow); 
+      backdrop-filter: blur(6px); 
+      margin: 18px;
+  }
+
+  #loginScreen input { 
+      width: 100%; 
+      padding: 14px; 
+      margin-top: 16px; 
+      background: rgba(0,0,0,0.3); 
+      border: 1px solid rgba(255,255,255,.1); 
+      color: white; 
+      border-radius: 10px; 
+      font-size: 15px; 
+      font-family: inherit;
+      transition: border-color 0.2s;
+  }
+
+  #loginScreen input:focus {
+      outline: none;
+      border-color: var(--accent);
+  }
+
+  #loginError { 
+      color: var(--bad); 
+      margin-top: 12px; 
+      font-size: 14px; 
+      display: none; 
+      font-weight: bold; 
+  }
+
+  #loadingScreen { 
+      display: none; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      width: 100%; 
+      text-align: center; 
+  }
+
+  #loadingScreen img { 
+      width: 80px; 
+      height: 80px; 
+      border-radius: 50%; 
+      margin-bottom: 20px; 
+  }
+
+  /* --- MAIN APP INTERFACE --- */
+  .app {
+      display: none; /* Hidden until login */
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 22px 30px;
+      backdrop-filter: blur(6px); 
+      margin-top: 20px;
+      margin-bottom: 40px;
+  }
+
+  header {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      position: relative;
+  }
+
+  .logout-btn-header {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted);
+      padding: 6px 12px;
+      font-size: 12px;
+  }
+
+  .logout-btn-header:hover {
+      color: var(--bad);
+      border-color: rgba(239,68,68,.3);
+      background: rgba(239,68,68,.05);
+  }
+
+  h1 { margin: 0; font-size: 26px; color: var(--accent); font-weight: 800; letter-spacing: -0.5px;}
+  .sub { color: var(--muted); font-size: 15px; font-weight: 500; }
+
+  .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+  }
+
+  button {
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer; 
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+  }
+
+  button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+  }
+
+  .btn-primary { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn-primary:hover:not(:disabled) { background: #38bdf8; border-color: #38bdf8; }
+
+  .grid-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+  }
+
+  .keyword-card {
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 14px;
+      padding: 24px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+  }
+
+  .keyword-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at center, rgba(125, 211, 252, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+  }
+
+  .keyword-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(125, 211, 252, 0.4);
+      background: rgba(255,255,255,.04);
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+  }
+
+  .keyword-card:hover::after {
+      opacity: 1;
+  }
+
+  .keyword-card h3 {
+      margin: 0;
+      font-size: 17px;
+      color: var(--text);
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+  }
+
+  /* --- MODAL STYLES --- */
+  #dataModal { 
+      display: none; 
+      position: fixed; 
+      top: 0; left: 0; 
+      width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.8); 
+      z-index: 1000; 
+      align-items: center; 
+      justify-content: center; 
+      backdrop-filter: blur(6px); 
+      opacity: 0;
+      transition: opacity 0.2s;
+  }
+
+  #dataModal.show {
+      display: flex;
+      opacity: 1;
+  }
+
+  .modal-content { 
+      background: #0c1528; 
+      width: 90%; 
+      max-width: 650px; 
+      max-height: 85vh; 
+      overflow-y: auto; 
+      padding: 30px; 
+      border-radius: 18px; 
+      border: 1px solid rgba(255,255,255,.1); 
+      box-shadow: var(--shadow); 
+      transform: scale(0.95) translateY(10px);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  #dataModal.show .modal-content {
+      transform: scale(1) translateY(0);
+  }
+
+  .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 25px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding-bottom: 15px;
+  }
+
+  .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+  }
+
+  .close-btn:hover {
+      color: var(--bad);
+      transform: scale(1.1);
+      background: transparent;
+      border-color: transparent;
+  }
+
+  .data-row { 
+      background: rgba(255,255,255,.03); 
+      padding: 16px; 
+      border-radius: 10px; 
+      margin-bottom: 12px; 
+      border: 1px solid rgba(255,255,255,.04); 
+      display: flex; 
+      gap: 15px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #e6f3ff;
+      animation: fadeIn 0.4s ease forwards;
+      opacity: 0;
+  }
+
+  .data-row .bullet-icon {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 18px;
+      line-height: 1.2;
+      flex-shrink: 0;
+  }
+
+  @keyframes fadeIn {
+      to { opacity: 1; }
+  }
+
+  .modal-content::-webkit-scrollbar { width: 8px; }
+  .modal-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px;}
+  .modal-content::-webkit-scrollbar-thumb { background: var(--glass); border-radius: 10px; }
+  .modal-content::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div style="width: 60px; height: 60px; background: var(--glass); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 1px solid rgba(255,255,255,.1);">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+  </div>
+  <h2 style="color:var(--accent); margin:0 0 5px; font-size:24px;">Physiology Portal</h2>
+  <div class="sub">Sign in to access the database</div>
+
+  <input type="text" id="usernameInput" placeholder="Username" autocomplete="off">
+  <input type="password" id="passwordInput" placeholder="Password">
+
+  <div id="loginError">Incorrect username or password.</div>
+
+  <button id="submitLoginBtn" class="btn-primary" style="width:100%; margin-top:20px; padding:14px; font-size:16px;">Secure Log In</button>
+</div>
+
+<div id="loadingScreen">
+    <img src="https://i.gifer.com/XOsX.gif" alt="Loading Animation">
+    <h2 style="color:var(--accent); margin:0;">Authenticating...</h2>
+    <div class="sub" style="margin-top: 8px;">establishing secure connection</div>
+</div>
+
+<div class="app" id="mainApp">
+    <header>
+        <button id="logoutBtn" class="logout-btn-header">Log Out</button>
+        <h1>Physiology Database</h1>
+        <div class="sub">Interactive Keyword Retrieval System</div>
+    </header>
+
+    <div class="controls" id="categoryTabs">
+        </div>
+
+    <div class="grid-layout" id="keywordGrid">
+        </div>
+</div>
+
+<div id="dataModal">
+    <div class="modal-content" id="modalBox">
+        <div class="modal-header">
+            <div>
+                <div class="sub" id="modalCategory" style="margin-bottom: 4px; color: var(--accent); font-weight:700;">Category</div>
+                <h2 id="modalTitle" style="margin:0; color:var(--text); font-size:22px;">Keyword Title</h2>
+            </div>
+            <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <div id="modalList">
+            </div>
+    </div>
+</div>
+
+<script>
+// ==========================================
+// 1. SUPABASE INITIALIZATION & LOGIN LOGIC
+// ==========================================
+const supabaseUrl = 'https://sjwkgqolmtbruaoxnppr.supabase.co';
+const supabaseKey = 'sb_publishable_9R8NvlRYiciVLR3Pm-E3RA_nWWgZXVl';
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+const loginScreen = document.getElementById('loginScreen');
+const loadingScreen = document.getElementById('loadingScreen');
+const mainApp = document.getElementById('mainApp');
+
+document.getElementById('submitLoginBtn').onclick = async () => {
+    const user = document.getElementById('usernameInput').value.trim();
+    const pass = document.getElementById('passwordInput').value.trim();
+    const btn = document.getElementById('submitLoginBtn');
+    const errorMsg = document.getElementById('loginError');
+
+    btn.textContent = "Checking...";
+    errorMsg.style.display = 'none'; 
+
+    // --- EMERGENCY BACKDOOR ---
+    if ((user === 'admin' && pass === 'top') || (user === 'student' && pass === 'student')) {
+        grantAccess();
+        return;
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('app_users')
+            .select('*')
+            .eq('username', user)
+            .eq('password', pass)
+            .single();
+
+        if (error) {
+            console.error("Supabase Login Error:", error); 
+            errorMsg.textContent = "Error or Invalid Credentials. Use 'student'/'student' to bypass.";
+            errorMsg.style.display = 'block';
+            btn.textContent = "Secure Log In";
+        } else if (data) {
+            grantAccess(); 
+        }
+    } catch(err) {
+        errorMsg.textContent = "Connection Error. Use 'student'/'student' to bypass.";
+        errorMsg.style.display = 'block';
+        btn.textContent = "Secure Log In";
+    }
+};
+
+document.getElementById('passwordInput').addEventListener("keypress", (e) => {
+    if(e.key === "Enter") document.getElementById('submitLoginBtn').click();
+});
+
+document.getElementById('logoutBtn').onclick = () => {
+    location.reload(); // Quick way to reset state and show login screen
+};
+
+function grantAccess() {
+    loginScreen.style.display = 'none';
+    loadingScreen.style.display = 'flex';
+
+    // Simulate loading time, then show the main app
+    setTimeout(() => {
+        document.body.style.alignItems = 'flex-start'; // Adjust alignment for full app
+        loadingScreen.style.display = 'none';
+        mainApp.style.display = 'block';
+        initPortal(); // Initialize the keyword grid
+    }, 1200); 
+}
+
+// ==========================================
+// 2. KEYWORD PORTAL DATA & LOGIC
+// ==========================================
+const dbContent = {
+    "Reproductive": {
+        "Sertoli cells": [
+            "Testis composed of Sertoli and Leydig cells with dual functional roles",
+            "Facilitation and regulation of spermatogenesis",
+            "Sertoli cells directly regulate spermatogenesis",
+            "It targets Sertoli cells in males and granulosa cells in females to promote gametogenesis",
+            "Impaired Sertoli cell support of spermatogenesis"
+        ],
+        "Leydig cells": [
+            "Testis composed of Sertoli and Leydig cells with dual functional roles",
+            "They synthesize testosterone in response to LH stimulation",
+            "Stimulates testosterone synthesis in Leydig cells",
+            "Leydig cells express LH receptors necessary for testosterone synthesis",
+            "LH acts on Leydig cells, which produce testosterone",
+            "Reduced LH stimulation of Leydig cells",
+            "Reduced testosterone and impaired spermatogenesis",
+            "Leydig cell insensitivity to LH"
+        ],
+        "Estrogen": [
+            "Oocyte production and secretion of estrogen/progesterone",
+            "Promotion of secondary sexual characteristics and endometrial proliferation",
+            "Because pituitary sensitivity to GnRH is enhanced, triggering LH surge",
+            "It stimulates endometrial proliferation and angiogenesis",
+            "Regulation of reproductive tissue growth and fat distribution",
+            "To balance and modulate estrogen action",
+            "It modulates hepatic lipid metabolism and lipoprotein synthesis",
+            "Withdrawal of both estrogen and progesterone",
+            "It synthesizes and secretes hormones such as hCG, estrogen, and progesterone",
+            "It stimulates proliferation of endometrial cells",
+            "Its receptors are widely expressed in multiple tissues"
+        ],
+        "Progesterone": [
+            "Oocyte production and secretion of estrogen/progesterone",
+            "Corpus luteum",
+            "It promotes differentiation and stabilization of the endometrial lining",
+            "It produces progesterone to maintain endometrial integrity",
+            "It mimics LH and sustains progesterone production",
+            "To balance and modulate estrogen action",
+            "Progesterone exerts a thermogenic effect",
+            "Withdrawal of both estrogen and progesterone",
+            "It synthesizes and secretes hormones such as hCG, estrogen, and progesterone",
+            "To limit excessive endometrial proliferation",
+            "It antagonizes aldosterone receptors, reducing sodium and water retention"
+        ],
+        "Testosterone": [
+            "They synthesize testosterone in response to LH stimulation",
+            "Stimulates testosterone synthesis in Leydig cells",
+            "To support local paracrine regulation of sperm production",
+            "To prevent excessive activation of the reproductive axis",
+            "It modulates central neural pathways involved in sexual behavior",
+            "It supports spermatogenic processes within seminiferous tubules",
+            "LH acts on Leydig cells, which produce testosterone",
+            "Reduced testosterone and impaired spermatogenesis"
+        ],
+        "GnRH": [
+            "Hypothalamus - induces LH and FSH secretion from anterior pituitary",
+            "Pulsatile secretion preserves pituitary responsiveness and proper LH/FSH release",
+            "It secretes GnRH controlling pituitary hormone release",
+            "It stimulates the anterior pituitary gland",
+            "It integrates nervous and endocrine systems by secreting hormones such as GnRH",
+            "Suppression of LH and FSH due to receptor desensitization",
+            "Decreased LH, FSH, and sex hormones",
+            "Down-regulation of pituitary GnRH receptors"
+        ],
+        "LH (Luteinizing Hormone)": [
+            "They synthesize testosterone in response to LH stimulation",
+            "Stimulates testosterone synthesis in Leydig cells",
+            "LH surge",
+            "Leydig cells express LH receptors necessary for testosterone synthesis",
+            "LH triggers enzymatic processes leading to follicular rupture",
+            "Differences in target cells and receptor distribution determine its effects",
+            "LH acts on Leydig cells, which produce testosterone",
+            "Reduced LH stimulation of Leydig cells"
+        ],
+        "FSH & Inhibin": [
+            "Facilitation and regulation of spermatogenesis",
+            "Selectively suppresses FSH secretion",
+            "Direct inhibition at pituitary level specific for FSH",
+            "It targets Sertoli cells in males and granulosa cells in females to promote gametogenesis",
+            "Feedback inhibition of FSH by inhibin",
+            "Feedback regulation of sperm production"
+        ]
+    },
+    "Endocrine": {
+        "Endocrine Control": [
+            "Pituitary gland",
+            "Integration of nervous and endocrine systems through regulation of pituitary function",
+            "It releases tropic hormones that control other endocrine glands",
+            "By converting neural signals into hormonal outputs regulating the pituitary",
+            "Via hypothalamic integration of neural signals into hormonal outputs",
+            "Hierarchical feedback regulation",
+            "Decreased LH, FSH, and sex hormones"
+        ],
+        "Insulin & Glucagon": [
+            "Decreasing blood glucose via cellular uptake",
+            "Enhancing glucose uptake in tissues and promoting glycogen synthesis",
+            "Presence of insulin-independent transport mechanisms",
+            "Impaired cellular glucose utilization",
+            "Insulin resistance due to receptor dysfunction",
+            "Increasing blood glucose via glycogenolysis",
+            "Stimulating hepatic glycogen breakdown and gluconeogenesis",
+            "Hepatic glycogenolysis and gluconeogenesis"
+        ],
+        "Thyroid Hormones": [
+            "Increasing metabolic rate and thermogenesis",
+            "Their receptors are widely distributed across different tissues",
+            "Disrupts cellular differentiation and development",
+            "Regulation of hepatic lipid metabolism",
+            "Increased basal metabolic rate",
+            "Cellular oxidative metabolism",
+            "Mitochondrial oxidative phosphorylation"
+        ],
+        "Cortisol & ACTH": [
+            "Stimulating cortisol production from adrenal cortex",
+            "Increased cortisol production",
+            "Maintains prolonged metabolic responses",
+            "Prolonged cortisol exposure",
+            "Increased gluconeogenesis accompanied by protein catabolism",
+            "Decreased cortisol synthesis due to reduced adrenal stimulation",
+            "Increased gluconeogenesis with immunosuppression"
+        ],
+        "Calcium Regulation": [
+            "Controlling calcium homeostasis",
+            "Decreasing blood calcium via inhibition of bone resorption",
+            "Enhancing bone resorption and renal calcium reabsorption",
+            "Inhibiting osteoclast activity",
+            "Reduced bone calcium mobilization + increased loss",
+            "Increased osteoclast-mediated bone resorption"
+        ],
+        "Receptor Mechanisms": [
+            "Presence of specific receptors on target cells",
+            "Interaction with membrane receptors and activation of second messengers",
+            "Entering cells and regulating gene expression via intracellular receptors",
+            "Up-regulation and Down-regulation",
+            "They cannot cross lipid membranes",
+            "They diffuse through lipid membranes and bind intracellular receptors",
+            "Reduced receptor number or sensitivity"
+        ]
+    },
+    "Neurophysiology": {
+        "Brain & Spinal Cord": [
+            "Brain and spinal cord",
+            "Integration of sensory input and regulation of body functions",
+            "Rapid, coordinated responses to stimuli",
+            "It coordinates adaptive responses",
+            "To enable appropriate physiological adjustments"
+        ],
+        "Peripheral & Reflexes": [
+            "Transmission of signals between CNS and body tissues",
+            "Independent reflex integration",
+            "Bidirectional communication between CNS and body",
+            "They allow rapid responses without cortical processing",
+            "It allows both rapid reflexes and complex integration",
+            "Spinal reflex arc generates immediate response",
+            "Reflex circuits are localized within the spinal cord"
+        ],
+        "Neurons & Synapses": [
+            "Neuronal cell bodies and dendrites",
+            "Saltatory conduction between nodes of Ranvier",
+            "It ensures unidirectional transmission of information",
+            "Chemical signaling via neurotransmitters",
+            "Glutamate excitatory, GABA inhibitory",
+            "Chemical signaling enables modulation and plasticity",
+            "Decreased postsynaptic response despite normal presynaptic activity",
+            "Excitotoxicity due to prolonged overstimulation",
+            "Increased neuronal excitability and dysfunction"
+        ],
+        "Autonomic System": [
+            "Regulation of heart rate and digestion",
+            "Increased heart rate and blood pressure",
+            "To redirect energy and blood flow toward vital organs and muscles",
+            "It promotes energy conservation and tissue restoration",
+            "It regulates essential internal processes continuously",
+            "Sympathetic activation",
+            "Predominant parasympathetic activity promoting digestion and energy storage",
+            "Persistent stress state with systemic imbalance"
+        ]
+    },
+    "Renal": {
+        "General Renal Function": [
+            "They maintain homeostasis by filtering blood, regulating electrolytes and acid-base balance, controlling blood pressure, and producing hormones",
+            "Excretion = Filtration - Reabsorption + Secretion",
+            "Ability to remove substances from plasma",
+            "It determines filtration and delivery of substances for processing",
+            "Kidneys regulate fluid, electrolytes, acid-base balance, and hormones",
+            "Increased red blood cell production to improve oxygen delivery"
+        ],
+        "Glomerulus & GFR": [
+            "Nephron (renal corpuscle + tubular system)",
+            "Located in renal cortex for filtration under hydrostatic pressure",
+            "Similar to plasma but largely protein-free",
+            "125 mL/min",
+            "Formation of initial filtrate for modification",
+            "Filtration barrier restricts large molecules",
+            "Reduced filtration efficiency limits removal of waste substances",
+            "Reduced GFR due to decreased blood flow"
+        ],
+        "Tubules & Loop of Henle": [
+            "Transfer from tubular fluid back into circulation",
+            "Completely reabsorbed in proximal tubule",
+            "Sodium reabsorption creates osmotic gradients that facilitate water movement",
+            "Exceeding the transport maximum for glucose reabsorption",
+            "Creation of osmotic gradient for water reabsorption",
+            "Impermeable to water but reabsorbs Na+ and Cl-",
+            "Disruption of medullary osmotic gradient, reducing water reabsorption in collecting ducts"
+        ],
+        "Acid-Base Balance": [
+            "Reabsorbing bicarbonate and secreting hydrogen ions",
+            "Kidneys regulate H+/HCO3-, lungs regulate CO2",
+            "It maintains acid-base balance",
+            "Increase bicarbonate reabsorption and hydrogen ion secretion",
+            "Renal excretion of hydrogen ions and regeneration of bicarbonate",
+            "Metabolic acidosis"
+        ],
+        "ADH (Antidiuretic Hormone)": [
+            "Increasing water reabsorption in collecting ducts",
+            "Insertion of aquaporins into collecting duct cells",
+            "Hypothalamic osmoreceptor activation",
+            "It increases water permeability in collecting ducts",
+            "To enhance water reabsorption and conserve body fluids",
+            "Lack of ADH effect",
+            "Enhanced water reabsorption leading to concentrated urine"
+        ],
+        "Aldosterone & RAAS": [
+            "Increasing sodium reabsorption and fluid retention",
+            "It increases sodium reabsorption, leading to water retention",
+            "Aldosterone-mediated potassium secretion in distal nephron",
+            "Reduced aldosterone leading to decreased sodium reabsorption",
+            "Increases sodium and water reabsorption",
+            "Juxtaglomerular cells",
+            "Activation of RAAS causing vasoconstriction and sodium retention",
+            "Increased sodium and water retention restoring volume"
+        ]
+    }
+};
+
+const categoryTabsContainer = document.getElementById('categoryTabs');
+const keywordGrid = document.getElementById('keywordGrid');
+const dataModal = document.getElementById('dataModal');
+const closeModalBtn = document.getElementById('closeModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalCategory = document.getElementById('modalCategory');
+const modalList = document.getElementById('modalList');
+
+let currentCategory = "Reproductive";
+
+function initPortal() {
+    renderTabs();
+    renderGrid(currentCategory);
+}
+
+function renderTabs() {
+    categoryTabsContainer.innerHTML = '';
+    const categories = Object.keys(dbContent);
+    categories.forEach(category => {
+        const btn = document.createElement('button');
+        btn.className = category === currentCategory ? 'btn-primary' : '';
+        btn.textContent = category;
+        btn.onclick = () => {
+            Array.from(categoryTabsContainer.children).forEach(b => b.className = '');
+            btn.className = 'btn-primary';
+            currentCategory = category;
+            renderGrid(category);
+        };
+        categoryTabsContainer.appendChild(btn);
+    });
+}
+
+function renderGrid(category) {
+    keywordGrid.innerHTML = '';
+    const keywords = Object.keys(dbContent[category]);
+
+    keywords.forEach((keyword) => {
+        const card = document.createElement('div');
+        card.className = 'keyword-card';
+        card.innerHTML = `<h3>${keyword}</h3>`;
+
+        card.onclick = () => openModal(category, keyword, dbContent[category][keyword]);
+        keywordGrid.appendChild(card);
+    });
+}
+
+function openModal(category, keyword, dataArr) {
+    modalCategory.textContent = category.toUpperCase() + " SYSTEM";
+    modalTitle.textContent = keyword;
+    modalList.innerHTML = '';
+
+    dataArr.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'data-row';
+        row.style.animationDelay = `${index * 0.04}s`;
+        row.innerHTML = `<div class="bullet-icon">&rarr;</div><div>${item}</div>`;
+        modalList.appendChild(row);
+    });
+
+    dataModal.classList.add('show');
+}
+
+function closeModal() {
+    dataModal.classList.remove('show');
+}
+
+closeModalBtn.addEventListener('click', closeModal);
+
+// Close on outside click
+dataModal.addEventListener('click', (e) => {
+    if (e.target === dataModal) {
+        closeModal();
+    }
+});
+
+// Escape key to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dataModal.classList.contains('show')) {
+        closeModal();
+    }
+});
+</script>
+</body>
+</html>
