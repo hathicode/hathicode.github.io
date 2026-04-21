@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Database Powered Microbiology Quiz</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&display=swap');
+  :root{--bg:#0a0f1c;--glass:rgba(255,255,255,0.06);--muted:#9fb2d0;--text:#e8f2ff;--accent:#7dd3fc;--good:#22c55e;--bad:#ef4444;--shadow:0 16px 60px rgba(5,12,34,.55);}
+  *{box-sizing:border-box;}
+  body{margin:0;min-height:100vh;background:linear-gradient(160deg,#070d18 0%,#0c1528 60%,#090f1d 100%);color:var(--text);font-family:'Manrope',system-ui,-apple-system,sans-serif;padding:18px;display:flex;justify-content:center; align-items:center;}
+  
+  .app{display:none; width:100%;max-width:1080px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:18px;box-shadow:var(--shadow);padding:22px;backdrop-filter:blur(6px);}
+  header{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px;}
+  h1{margin:0;font-size:22px;color:var(--accent);}
+  .sub{color:var(--muted);font-size:14px;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  button{background:var(--glass);border:1px solid rgba(255,255,255,.08);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer;}
+  button:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(255,255,255,.18);}
+  button:disabled{opacity:.55;cursor:not-allowed;}
+  .btn-primary { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn-success { background: var(--good); color: #fff; border-color: var(--good); }
+  .pill{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--muted);font-weight:700;font-size:13px;}
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:16px;}
+  .card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:16px; align-self: start;}
+  #questionText{font-size:17px;margin:0 0 10px;color:#e6f3ff; line-height: 1.5;}
+  .opt{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);cursor:pointer; margin-bottom:10px;}
+  .opt.disabled{cursor:default;opacity:.85;}
+  .opt .label{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.04);display:grid;place-items:center;color:var(--muted);font-weight:800;flex-shrink:0;}
+  .opt.correct{background:linear-gradient(90deg,rgba(34,197,94,.14),rgba(34,197,94,.05));border-color:rgba(34,197,94,.5);}
+  .opt.incorrect{background:linear-gradient(90deg,rgba(239,68,68,.14),rgba(239,68,68,.05));border-color:rgba(239,68,68,.5);}
+  
+  /* LOGIN SCREEN */
+  #loginScreen { width: 100%; max-width: 400px; text-align: center; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05); border-radius: 18px; padding: 30px; box-shadow: var(--shadow); backdrop-filter: blur(6px); }
+  #loginScreen input { width: 100%; padding: 14px; margin-top: 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,.1); color: white; border-radius: 10px; font-size: 15px; }
+  #loginError { color: var(--bad); margin-top: 12px; font-size: 14px; display: none; font-weight: bold; }
+  
+  /* ADMIN PANEL STYLES */
+  #adminPanel { display: none; }
+  .admin-q-row { background: rgba(255,255,255,.03); padding: 14px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,.05); display: flex; justify-content: space-between; align-items: center; gap: 15px;}
+  .admin-search { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.3); border: 1px solid var(--accent); color: white; border-radius: 8px; font-size: 15px; }
+  
+  /* MODAL STYLES */
+  #editModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-content { background: #0c1528; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 14px; border: 1px solid rgba(255,255,255,.1); box-shadow: var(--shadow); }
+  .edit-input { width: 100%; padding: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,.2); color: white; border-radius: 8px; font-family: inherit; font-size:14px; }
+  .edit-input:focus { outline: none; border-color: var(--accent); }
+  .modal-label { font-size: 13px; color: var(--accent); font-weight: bold; margin-bottom: 4px; display: block; }
+
+  @media(max-width:980px){.layout{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <h2 style="color:var(--accent); margin:0 0 5px;">Microbiology Quiz</h2>
+  <div class="sub">Secure Database Login</div>
+  <input type="text" id="usernameInput" placeholder="Username" autocomplete="off">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <div id="loginError">Incorrect username or password.</div>
+  <button id="submitLoginBtn" class="btn-primary" style="width:100%; margin-top:20px; padding:14px;">Log In</button>
+</div>
+
+<div class="app" id="mainApp">
+  <header>
+    <div>
+      <h1>Microbiology &amp; Virology</h1>
+      <div class="sub" id="statusSub">Fetching questions from database...</div>
+    </div>
+    <div class="controls">
+      <button id="adminToggleBtn" class="btn-primary" style="display:none;">Admin Portal</button>
+      <span class="pill" id="scorePill">Score: 0 / 0</span>
+      <button id="revealBtn" disabled>Reveal Answer</button>
+      <button id="restartBtn" disabled>Reshuffle</button>
+      <button id="logoutBtn" style="border-color:rgba(255,255,255,.1);">Log Out</button>
+    </div>
+  </header>
+
+  <div class="layout" id="quizLayout">
+    <main class="card">
+      <p id="questionText">Loading...</p>
+      <div id="options"></div>
+      <div id="hint" style="color:var(--muted);font-size:13px;margin-top:6px;"></div>
+      <div style="display:flex; justify-content:space-between; margin-top:12px;">
+        <div class="pill" id="progress">0 / 0</div>
+        <button id="nextBtn" disabled>Next Question</button>
+      </div>
+    </main>
+    <aside class="card">
+       <div style="margin-bottom:15px;"><strong>Score (out of 10)</strong><br><span style="font-size:34px;font-weight:800;color:var(--accent);" id="score10">0.00</span></div>
+       <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Incorrect Answers:</div>
+       <div id="wrongList" style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow:auto;"></div>
+    </aside>
+  </div>
+
+  <div class="card" id="adminPanel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h2 style="margin:0; color:var(--accent);">Database Editor</h2>
+        <span class="pill">Changes save instantly to Supabase</span>
+    </div>
+    <input type="text" id="adminSearch" class="admin-search" placeholder="Search by question text or ID number..." onkeyup="filterAdminList()">
+    <div id="adminList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+        </div>
+  </div>
+</div>
+
+<div id="editModal">
+    <div class="modal-content">
+        <h2 style="margin-top:0; color:var(--accent);">Edit Question <span id="editQidDisplay"></span></h2>
+        
+        <label class="modal-label">Question Text:</label>
+        <textarea id="editQText" class="edit-input" rows="4"></textarea>
+        
+        <label class="modal-label">Option A:</label>
+        <input type="text" id="editOptA" class="edit-input">
+        
+        <label class="modal-label">Option B:</label>
+        <input type="text" id="editOptB" class="edit-input">
+        
+        <label class="modal-label">Option C:</label>
+        <input type="text" id="editOptC" class="edit-input">
+        
+        <label class="modal-label">Option D:</label>
+        <input type="text" id="editOptD" class="edit-input">
+        
+        <label class="modal-label">Option E (Optional):</label>
+        <input type="text" id="editOptE" class="edit-input" placeholder="Leave blank if not needed">
+        
+        <label class="modal-label">Correct Answer:</label>
+        <select id="editCorrect" class="edit-input" style="background:#0c1528; font-weight:bold;">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+        </select>
+        
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+            <button onclick="closeEditModal()" style="background:transparent;">Cancel</button>
+            <button class="btn-success" id="saveEditBtn" onclick="saveQuestionToDB()">Save to Database</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==========================================
+// 1. CONNECT TO SUPABASE DATABASE
+// ==========================================
+// ⚠️ PASTE YOUR URL AND KEY HERE ⚠️
+const supabaseUrl = 'https://sjwkgqolmtbruaoxnppr.supabase.co';
+const supabaseKey = 'sb_publishable_oJWeqEzqOXOWVhBajFbajA_11PT51n6';
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// ==========================================
+// 2. LOGIN LOGIC
+// ==========================================
+const loginScreen = document.getElementById('loginScreen');
+const mainApp = document.getElementById('mainApp');
+let currentRole = '';
+
+// Check session
+if(sessionStorage.getItem('quiz_role')) {
+    grantAccess(sessionStorage.getItem('quiz_role'));
+}
+
+document.getElementById('submitLoginBtn').onclick = async () => {
+    const user = document.getElementById('usernameInput').value.trim();
+    const pass = document.getElementById('passwordInput').value.trim();
+    
+    document.getElementById('submitLoginBtn').textContent = "Checking...";
+    
+    const { data, error } = await db
+        .from('app_users')
+        .select('*')
+        .eq('username', user)
+        .eq('password', pass)
+        .single();
+
+    if (data) {
+        sessionStorage.setItem('quiz_role', data.role);
+        grantAccess(data.role);
+    } else {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('submitLoginBtn').textContent = "Log In";
+    }
+};
+
+document.getElementById('passwordInput').addEventListener("keypress", (e) => {
+    if(e.key === "Enter") document.getElementById('submitLoginBtn').click();
+});
+
+document.getElementById('logoutBtn').onclick = () => {
+    sessionStorage.removeItem('quiz_role');
+    location.reload();
+};
+
+function grantAccess(role) {
+    currentRole = role;
+    loginScreen.style.display = 'none';
+    mainApp.style.display = 'block';
+    
+    if(role === 'admin') {
+        document.getElementById('adminToggleBtn').style.display = 'block';
+    }
+    fetchQuestions();
+}
+
+// ==========================================
+// 3. QUIZ LOGIC
+// ==========================================
+let rawDBQuestions = []; // Stores the exact rows from DB
+let masterQuestions = []; // Formatted for the quiz
+let questions = [], index = 0, correct = 0;
+
+async function fetchQuestions() {
+    document.getElementById('statusSub').textContent = "Downloading questions securely...";
+    
+    const { data, error } = await db.from('app_questions').select('*').order('id', { ascending: true });
+    
+    if (error || !data || data.length === 0) {
+        document.getElementById('questionText').textContent = "Error: Could not fetch questions from Database.";
+        console.error(error);
+        return;
+    }
+
+    rawDBQuestions = data; // Save raw data for the admin editor
+    
+    masterQuestions = data.map(row => {
+        let opts = [], map = {};
+        if(row.option_a) { opts.push(row.option_a); map['A'] = row.option_a; }
+        if(row.option_b) { opts.push(row.option_b); map['B'] = row.option_b; }
+        if(row.option_c) { opts.push(row.option_c); map['C'] = row.option_c; }
+        if(row.option_d) { opts.push(row.option_d); map['D'] = row.option_d; }
+        if(row.option_e) { opts.push(row.option_e); map['E'] = row.option_e; }
+        
+        return { id: row.id, q: row.question_text, options: opts, optionsMap: map, correctLetter: row.correct_answer };
+    });
+
+    document.getElementById('statusSub').textContent = `${masterQuestions.length} Questions Loaded Securely`;
+    prepare();
+}
+
+function prepare() {
+    questions = JSON.parse(JSON.stringify(masterQuestions));
+    
+    // Reshuffle all questions
+    for(let i=questions.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [questions[i],questions[j]]=[questions[j],questions[i]]; }
+    
+    questions.forEach(q => {
+        const correctText = q.optionsMap[q.correctLetter];
+        // Shuffle Options
+        let ops = q.options.map((t,i)=>({t,i}));
+        for(let i=ops.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [ops[i],ops[j]]=[ops[j],ops[i]]; }
+        q.options = ops.map(o=>o.t);
+        q.answer = q.options.findIndex(optText => optText === correctText);
+    });
+    
+    index=0; correct=0; document.getElementById('wrongList').innerHTML='';
+    render();
+}
+
+function render() {
+    if(index >= questions.length) return;
+    const q = questions[index];
+    document.getElementById('questionText').innerHTML = `<strong>Q${index+1}.</strong> ${q.q}`;
+    const optsEl = document.getElementById('options');
+    optsEl.innerHTML = '';
+    document.getElementById('hint').textContent = '';
+    
+    q.options.forEach((opt, i) => {
+        const div = document.createElement('div'); div.className = 'opt'; div.dataset.i = i;
+        div.innerHTML = `<div class="label">${'ABCDE'[i]}</div><div>${opt}</div>`;
+        div.onclick = () => selectOption(i, div, optsEl, q);
+        optsEl.appendChild(div);
+    });
+    
+    document.getElementById('progress').textContent = `${index+1} / ${questions.length}`;
+    document.getElementById('scorePill').textContent = `Score: ${correct} / ${questions.length}`;
+    document.getElementById('nextBtn').disabled = false;
+    document.getElementById('revealBtn').disabled = false;
+    document.getElementById('restartBtn').disabled = false;
+}
+
+function selectOption(i, el, optsEl, q) {
+    if(el.classList.contains('disabled')) return;
+    optsEl.querySelectorAll('.opt').forEach(e => e.classList.add('disabled'));
+    
+    const correctEl = optsEl.querySelector(`.opt[data-i="${q.answer}"]`);
+    if(i === q.answer) {
+        el.classList.add('correct');
+        document.getElementById('hint').textContent = 'Correct!';
+        correct++;
+    } else {
+        el.classList.add('incorrect');
+        if(correctEl) correctEl.classList.add('correct');
+        document.getElementById('hint').textContent = 'Incorrect.';
+        
+        const wDiv = document.createElement('div');
+        wDiv.innerHTML = `<div style="padding:10px; border:1px dashed rgba(255,255,255,.1); border-radius:8px; font-size:13px; background:rgba(255,255,255,.02);">
+            <strong>ID ${q.id}:</strong> ${q.q}<br><span style="color:var(--bad)">You: ${q.options[i]}</span><br><span style="color:var(--good)">Key: ${q.options[q.answer]}</span>
+        </div>`;
+        document.getElementById('wrongList').appendChild(wDiv);
+    }
+    document.getElementById('score10').textContent = ((correct / questions.length) * 10).toFixed(2);
+    document.getElementById('scorePill').textContent = `Score: ${correct} / ${questions.length}`;
+}
+
+document.getElementById('nextBtn').onclick = () => { index++; render(); };
+document.getElementById('restartBtn').onclick = prepare;
+document.getElementById('revealBtn').onclick = () => {
+    const correctEl = document.getElementById('options').querySelector(`.opt[data-i="${questions[index].answer}"]`);
+    if(correctEl && !correctEl.classList.contains('disabled')) {
+        document.getElementById('options').querySelectorAll('.opt').forEach(e => e.classList.add('disabled'));
+        correctEl.classList.add('correct');
+    }
+};
+
+// ==========================================
+// 4. ADMIN IN-APP DATABASE EDITOR
+// ==========================================
+let adminMode = false;
+let currentEditId = null;
+
+document.getElementById('adminToggleBtn').onclick = () => {
+    adminMode = !adminMode;
+    if(adminMode) {
+        document.getElementById('quizLayout').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('adminToggleBtn').textContent = 'Back to Quiz';
+        renderAdminList();
+    } else {
+        document.getElementById('quizLayout').style.display = 'grid';
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('adminToggleBtn').textContent = 'Admin Portal';
+    }
+};
+
+function renderAdminList(filterText = '') {
+    const list = document.getElementById('adminList');
+    list.innerHTML = '';
+    const lowerFilter = filterText.toLowerCase();
+    
+    rawDBQuestions.forEach(q => {
+        if(filterText && !q.question_text.toLowerCase().includes(lowerFilter) && !q.id.toString().includes(lowerFilter)) return;
+        
+        const row = document.createElement('div');
+        row.className = 'admin-q-row';
+        row.innerHTML = `
+            <div style="flex:1;">
+                <div style="color:var(--accent); font-weight:bold; font-size:13px; margin-bottom:4px;">ID: ${q.id} | Key: ${q.correct_answer}</div>
+                <div style="font-size:14px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${q.question_text}</div>
+            </div>
+            <button class="btn-primary" style="padding:8px 16px; font-size:13px;" onclick="openEditModal(${q.id})">Edit</button>
+        `;
+        list.appendChild(row);
+    });
+}
+
+function filterAdminList() {
+    renderAdminList(document.getElementById('adminSearch').value);
+}
+
+function openEditModal(id) {
+    currentEditId = id;
+    const q = rawDBQuestions.find(x => x.id === id);
+    if(!q) return;
+    
+    document.getElementById('editQidDisplay').textContent = `#${q.id}`;
+    document.getElementById('editQText').value = q.question_text;
+    document.getElementById('editOptA').value = q.option_a || '';
+    document.getElementById('editOptB').value = q.option_b || '';
+    document.getElementById('editOptC').value = q.option_c || '';
+    document.getElementById('editOptD').value = q.option_d || '';
+    document.getElementById('editOptE').value = q.option_e || '';
+    document.getElementById('editCorrect').value = q.correct_answer;
+    
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+async function saveQuestionToDB() {
+    const btn = document.getElementById('saveEditBtn');
+    btn.textContent = "Saving...";
+    btn.disabled = true;
+    
+    const updatedData = {
+        question_text: document.getElementById('editQText').value.trim(),
+        option_a: document.getElementById('editOptA').value.trim() || null,
+        option_b: document.getElementById('editOptB').value.trim() || null,
+        option_c: document.getElementById('editOptC').value.trim() || null,
+        option_d: document.getElementById('editOptD').value.trim() || null,
+        option_e: document.getElementById('editOptE').value.trim() || null,
+        correct_answer: document.getElementById('editCorrect').value
+    };
+
+    const { error } = await db.from('app_questions').update(updatedData).eq('id', currentEditId);
+
+    if(error) {
+        alert("Error saving to database: " + error.message);
+    } else {
+        // Update local memory so we don't have to fetch from DB again immediately
+        const index = rawDBQuestions.findIndex(x => x.id === currentEditId);
+        rawDBQuestions[index] = { ...rawDBQuestions[index], ...updatedData };
+        
+        // Rebuild masterQuestions
+        masterQuestions[index].q = updatedData.question_text;
+        masterQuestions[index].correctLetter = updatedData.correct_answer;
+        masterQuestions[index].optionsMap = {
+            'A': updatedData.option_a, 'B': updatedData.option_b, 'C': updatedData.option_c, 'D': updatedData.option_d, 'E': updatedData.option_e
+        };
+        masterQuestions[index].options = Object.values(masterQuestions[index].optionsMap).filter(Boolean);
+
+        closeEditModal();
+        renderAdminList(document.getElementById('adminSearch').value);
+        prepare(); // Refresh quiz in background with new data
+    }
+    
+    btn.textContent = "Save to Database";
+    btn.disabled = false;
+}
+</script>
+</body>
+</html>

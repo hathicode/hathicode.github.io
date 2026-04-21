@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parasitology & Mycology Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary: #4a90e2;
+            --primary-hover: #357abd;
+            --secondary: #6c757d;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --correct-bg: #d4edda;
+            --correct-border: #c3e6cb;
+            --correct-text: #155724;
+            --wrong-bg: #f8d7da;
+            --wrong-border: #f5c6cb;
+            --wrong-text: #721c24;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* LOGIN SCREEN STYLES */
+        #loginScreen { 
+            width: 100%; 
+            max-width: 420px; 
+            text-align: center; 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            padding: 40px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+            margin-top: 10vh;
+        }
+        #loginScreen input { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 16px; 
+            background: #f9f9f9; 
+            border: 1px solid #e0e0e0; 
+            color: var(--text-main); 
+            border-radius: 8px; 
+            font-size: 15px; 
+        }
+        #loginScreen input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #edf5ff;
+        }
+        #loginError { 
+            color: var(--danger); 
+            margin-top: 12px; 
+            font-size: 14px; 
+            display: none; 
+            font-weight: bold; 
+        }
+
+        /* MAIN APP STYLES */
+        .quiz-container {
+            display: none; /* Hidden until logged in */
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-top: 2vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Menu Styles */
+        #menu-screen { display: block; animation: fadeIn 0.4s; }
+        #quiz-screen, #result-screen { display: none; }
+
+        .menu-header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 15px;}
+        .menu-header h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 5px;}
+        .menu-header p { color: var(--text-muted); }
+
+        .chapter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .chapter-btn {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .chapter-btn:hover { background: #edf5ff; border-color: var(--primary); transform: translateY(-2px); }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            font-weight: bold;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .final-btn { background: #28a745; margin-bottom: 15px; }
+        .final-btn:hover { background: #218838; }
+
+        .logout-btn {
+            background-color: transparent;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            margin-top: 10px;
+        }
+        .logout-btn:hover { background-color: var(--danger); color: white; }
+
+        /* Quiz Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid #ccc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: #f0f0f0; color: var(--text-main); }
+
+        .progress { font-weight: bold; color: var(--text-muted); }
+
+        #question-text {
+            font-size: 1.25rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options-grid { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        .option-btn:hover:not(:disabled) { background: #edf5ff; border-color: var(--primary); }
+        .option-btn:disabled { cursor: default; opacity: 0.9; }
+
+        .option-btn.correct { background-color: var(--correct-bg) !important; border-color: var(--correct-border) !important; color: var(--correct-text) !important; font-weight: bold; }
+        .option-btn.wrong { background-color: var(--wrong-bg) !important; border-color: var(--wrong-border) !important; color: var(--wrong-text) !important; }
+
+        .controls { margin-top: 30px; display: flex; justify-content: flex-end; }
+        #next-btn { display: none; width: auto; }
+
+        /* Results Styles */
+        .score-display { text-align: center; margin-bottom: 30px; }
+        .score-display h2 { font-size: 3rem; color: var(--primary); margin-bottom: 10px; }
+        .score-display p { font-size: 1.1rem; color: var(--text-muted); }
+
+        .wrong-list-container {
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .wrong-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .wrong-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .wrong-question { font-weight: bold; margin-bottom: 5px; }
+
+        .correct-answer-text {
+            color: var(--correct-text);
+            background: var(--correct-bg);
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        
+        .your-answer-text { color: var(--wrong-text); font-size: 0.9rem; margin-top: 5px; font-weight: 500; }
+
+        #data-warning {
+            background: #fffbeb;
+            color: #b45309;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            border: 1px solid #fcd34d;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen">
+        <h2 style="color:var(--primary); margin:0 0 5px;">Parasitology Portal</h2>
+        <div style="color:var(--text-muted);font-size:14px; margin-bottom: 10px;">Secure Database Login</div>
+        <input type="text" id="usernameInput" placeholder="Username" autocomplete="off">
+        <input type="password" id="passwordInput" placeholder="Password">
+        <div id="loginError">Incorrect username or password.</div>
+        <button class="btn-primary" id="submitLoginBtn" style="margin-top:24px; padding:14px;">Log In</button>
+    </div>
+
+    <div class="quiz-container" id="mainApp">
+        
+        <div id="menu-screen">
+            <div class="menu-header">
+                <h1>Parasitology & Mycology</h1>
+                <p>Select a module to begin your review</p>
+            </div>
+            
+            <div id="data-warning">⚠️ No question data found. Please paste your raw data string into the 'rawData' variable in the code.</div>
+
+            <div class="chapter-grid" id="chapter-buttons">
+                </div>
+            
+            <button class="btn-primary final-btn" id="final-btn" onclick="startQuiz('all')">Take Final Exam (All Questions)</button>
+            <button class="btn-primary logout-btn" onclick="logout()">Log Out</button>
+        </div>
+
+        <div id="quiz-screen">
+            <div class="header">
+                <button class="back-btn" onclick="returnToMenu()">⬅ Menu</button>
+                <div style="flex-grow: 1; text-align: center; font-weight: bold; color: var(--primary);" id="module-title">Module Name</div>
+                <div class="progress" id="progress-text">1 / X</div>
+            </div>
+            <h2 id="question-text">Question goes here...</h2>
+            <div class="options-grid" id="options-container"></div>
+            <div class="controls">
+                <button id="next-btn" class="btn-primary">Next Question ➡️</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <div class="score-display">
+                <h2><span id="final-score">0.0</span> <span style="font-size: 1.5rem; color: var(--text-muted);">/ 10</span></h2>
+                <p>You answered <span id="raw-score"></span> out of <span id="total-questions"></span> correctly.</p>
+            </div>
+            
+            <h3 style="margin-bottom: 15px;">Incorrect Answers to Review:</h3>
+            <div class="wrong-list-container" id="wrong-list"></div>
+            
+            <div style="text-align: center;">
+                <button class="btn-primary" style="display: inline-block; background-color: var(--secondary); width: auto;" onclick="returnToMenu()">Return to Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. SUPABASE LOGIN LOGIC
+        // ==========================================
+        const supabaseUrl = 'https://sjwkgqolmtbruaoxnppr.supabase.co';
+        const supabaseKey = 'sb_publishable_oJWeqEzqOXOWVhBajFbajA_11PT51n6';
+        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+
+        if(sessionStorage.getItem('quiz_role')) {
+            grantAccess();
+        }
+
+        document.getElementById('submitLoginBtn').onclick = async () => {
+            const user = document.getElementById('usernameInput').value.trim();
+            const pass = document.getElementById('passwordInput').value.trim();
+            const btn = document.getElementById('submitLoginBtn');
+            
+            btn.textContent = "Checking...";
+            btn.disabled = true;
+            
+            const { data, error } = await db
+                .from('app_users')
+                .select('*')
+                .eq('username', user)
+                .eq('password', pass)
+                .single();
+
+            if (data) {
+                sessionStorage.setItem('quiz_role', data.role);
+                grantAccess();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                btn.textContent = "Log In";
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('passwordInput').addEventListener("keypress", (e) => {
+            if(e.key === "Enter") document.getElementById('submitLoginBtn').click();
+        });
+
+        function grantAccess() {
+            loginScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            initMenu();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('quiz_role');
+            location.reload();
+        }
+
+        // =========================================================================
+        // 2. QUIZ DATA PARSER
+        // ⬇️ ⬇️ ⬇️  PASTE YOUR RAW STRING DATA INSIDE THESE BACKTICKS  ⬇️ ⬇️ ⬇️
+        // =========================================================================
+        const rawData = `
+        1. Which of the following best defines "Parasitism"?|B. A relationship where one species benefits at the expense of the other, causing damage.|A. A relationship where both species benefit.|C. A relationship where one species benefits without affecting the other.|D. A temporary association between two different species for transport.
+2. A host that serves as a temporary refuge and vehicle for reaching an obligatory host, but where no parasitic development occurs, is a:|B. Paratenic host.|A. Intermediate host.|C. Accidental host.|D. Definitive host.
+3. Which group of helminths is characterized by being multicellular and having a cylindrical, unsegmented body?|C. Nematodes.|A. Trematodes.|B. Cestodes.|D. Protozoa.
+4. Ectoparasites are organisms that:|B. Live on the surface of the host.|A. Live inside the host's organs.|C. Only infect animals, not humans.|D. Are always unicellular.
+5. Which phylum do Trematodes and Cestodes belong to?|B. Platyhelminthes.|A. Nemathelminthes.|C. Arthropoda.|D. Sarcomastigophora.
+6. A parasite that cannot survive without a host is known as a/an:|B. Obligatory parasite.|A. Facultative parasite.|C. Accidental parasite.|D. Ectoparasite.
+7. Which of the following distinguishes a "Direct life cycle" from an "Indirect life cycle"?|B. Indirect cycles require at least one intermediate host to complete development.|A. Direct cycles require an intermediate host.|C. Direct cycles only occur in protozoa.|D. Indirect cycles are faster than direct cycles.
+8. The "Host-Parasite-Environment" triad suggests that:|B. Control of parasitic diseases depends on understanding all three components.|A. Parasitic diseases occur regardless of environmental factors.|C. The host is the only factor determining the severity of the disease.|D. Parasites are the only cause of illness in this relationship.
+9. What is the primary difference between Cestodes and Trematodes?|B. Cestodes are typically segmented (tape-like), while Trematodes are leaf-shaped and unsegmented.|A. Cestodes are flat, while Trematodes are round.|C. Trematodes lack a digestive system, while Cestodes have one.|D. Cestodes are always microscopic.
+10. Which statement about parasitic eukaryotes is correct?|A. They include both Protozoa (unicellular) and Helminths (multicellular).|B. They do not possess a defined nucleus.|C. They are all ectoparasites.|D. They cannot cause systemic infections.
+11. How does a "Reservoir host" contribute to the epidemiology of a disease?|B. It maintains the parasite in nature and serves as a source of infection for humans.|A. It is the only host where the parasite can survive.|C. It always dies immediately after infection.|D. It prevents the spread of the parasite to other species.
+12. A researcher finds a flat, leaf-shaped parasite in the bile duct of a sheep. Based on general classification, this parasite is most likely a:|C. Trematode.|A. Nematode.|B. Cestode.|D. Protozoan.
+13. During a field study, you discover that a certain fish species carries larvae but the larvae do not develop further until the fish is eaten by a bird. The fish is a:|C. Paratenic host.|A. Definitive host.|B. Reservoir host.|D. Intermediate host.
+14. In a region where malaria is endemic, a specific mosquito species is required for the parasite to complete its sexual cycle. This mosquito is the:|B. Definitive host.|A. Intermediate host.|C. Paratenic host.|D. Accidental host.
+15. Which of the following is an example of a "Zoonotic" transmission?|B. A farmer contracting Fasciola after eating contaminated watercress shared with cattle.|A. A child getting pinworms from a classmate.|C. A person getting malaria from a needle stick.|D. A traveler getting a fungal skin infection from a dirty towel.
+17. The "Iceberg Phenomenon" in parasitic diseases refers to:|B. The large number of undiagnosed or asymptomatic cases compared to reported cases.|A. Parasites living in cold climates.|C. The fact that parasites are only found in deep water.|D. Symptoms that only appear during winter.
+18. Which diagnostic tool is specifically used to visualize blockages in the bile ducts caused by liver flukes?|B. ERCP (Endoscopic Retrograde Cholangiopancreatography).|A. ECG.|C. EEG.|D. Pulse oximetry.
+19. Albendazole and Mebendazole belong to which class of anthelmintics?|B. Benzimidazoles.|A. Salicylanilides.|C. Organophosphates.|D. Macrocyclic lactones.
+20. What is the primary drug of choice for treating most Trematode (fluke) and Cestode (tapeworm) infections?|B. Praziquantel.|A. Ivermectin.|C. Metronidazole.|D. Chloroquine.
+21. Which technique is used for identifying species and finding new targets for drugs?|B. NGS (Next-Generation Sequencing).|A. Stool microscopy.|C. Ultrasound.|D. Blood smear.
+22. "One Health" is an approach that recognizes the interconnection between:|B. Humans, animals, and the environment.|A. Only humans and animals.|C. Doctors and pharmacists.|D. Different countries' healthcare systems.
+23. Which drug is commonly used to treat infections caused by Entamoeba histolytica?|B. Metronidazole.|A. Albendazole.|C. Praziquantel.|D. Ivermectin.
+24. What is the mode of action of drugs like Praziquantel against parasites?|A. It causes paralysis of the parasite.|B. It increases the host's body temperature to kill the parasite.|C. It only prevents the parasite from laying eggs.|D. It changes the host's blood type.
+25. What is the main advantage of detecting "ES antigens" (Excretory/Secretory products) over somatic antigens?|B. It provides higher sensitivity and indicates an active infection.|A. It is much cheaper.|C. It can only be done in remote villages.|D. It does not require a blood sample.
+26. How does Neuroimaging (MRI/CT) assist in the management of parasitic diseases like Neurocysticercosis?|B. It helps locate cysts and monitor the inflammatory response during treatment.|A. It kills the parasite directly with radiation.|C. It is used to count the number of eggs in the stool.|D. It identifies the exact DNA sequence of the parasite.
+27. What is the primary difference between ERCP and MRCP in diagnosing liver flukes?|B. ERCP can be both diagnostic and therapeutic (removing flukes), while MRCP is only diagnostic.|A. ERCP is only for research; MRCP is for clinical use.|C. MRCP requires surgery; ERCP does not.|D. There is no difference.
+28. Why is Ivermectin often avoided in patients with a high microfilarial load of Loa loa?|B. It can trigger severe, life-threatening neurological reactions (encephalopathy).|A. It is not effective against Loa loa.|C. It turns the patient's skin blue.|D. It is too expensive for these patients.
+29. Benzimidazoles work by:|A. Inhibiting the polymerization of tubulin, disrupting the parasite's cytoskeleton.|B. Causing rapid influx of calcium, leading to muscle contraction.|C. Interfering with the parasite's DNA replication.|D. Blocking the parasite's ability to breathe air.
+30. A patient from a rural area presents with chronic abdominal pain. Stool microscopy is negative, but you suspect a liver fluke infection. What is the most appropriate next step in diagnostic updates?|B. Order a Coproantigen ELISA or Serology for specific antibodies.|A. Repeat stool exam 10 times.|C. Start broad-spectrum antibiotics.|D. Discharge the patient.
+31. You are designing a strategy to eliminate malaria in an area. What would be most effective for detecting low-level, asymptomatic infections?|B. Ultra-sensitive molecular-based techniques (PCR).|A. Thick and thin blood smears.|C. Physical examination.|D. Asking patients about their travel history.
+32. A 10-year-old child is diagnosed with multiple intestinal STH (Ascaris, Trichuris, and Hookworm). Which treatment regimen follows current global standards?|B. A single dose of Albendazole (400 mg).|A. A single dose of Praziquantel.|C. 10 days of Metronidazole.|D. Surgical removal of the worms.
+36. What is the infective stage of Ascaris lumbricoides for humans?|B. Embryonated eggs containing L2 larvae.|A. L3 larvae in soil.|C. Filariform larvae penetrating the skin.|D. Adult worms in undercooked meat.
+37. The "ground itch" is a clinical manifestation associated with the skin penetration of:|B. Hookworms.|A. Pinworms (Enterobius).|C. Whipworms (Trichuris).|D. Giant roundworms (Ascaris).
+38. The diagnostic method of choice for Enterobius vermicularis is:|B. Graham's Scotch tape (cellophane tape) swab.|A. Formalin-ether concentration stool test.|C. Blood smear for microfilariae.|D. Sputum examination.
+39. "Autoinfection" is a significant feature of the life cycle of:|B. Strongyloides stercoralis.|A. Ascaris lumbricoides.|C. Trichuris trichiura.|D. Necator americanus.
+40. Which parasite is also known as the "Guinea worm"?|B. Dracunculus medinensis.|A. Loa loa.|C. Onchocerca volvulus.|D. Toxocara canis.
+41. The condition "Larva Migrans" occurs when:|B. Larvae of animal parasites enter a human (accidental host) and migrate through tissues.|A. Adult worms migrate to the brain.|C. Eggs are passed in the stool.|D. A parasite lives in the intestine.
+42. Which nematode is transmitted by the bite of a Deer fly (Chrysops)?|C. Loa loa.|A. Wuchereria bancrofti.|B. Onchocerca volvulus.|D. Brugia malayi.
+43. Why do Ascaris lumbricoides larvae migrate through the lungs?|B. It is a necessary part of their developmental maturation before returning to the intestine.|A. To feed on oxygen.|C. They are trying to escape the host's immune system.|D. To cause pneumonia.
+44. Hookworm infection is a major cause of iron-deficiency anemia because:|B. The worms attach to the intestinal mucosa and suck blood.|A. The worms eat the host's food.|C. The worms prevent iron absorption in the stomach.|D. The eggs destroy red blood cells in the liver.
+45. What distinguishes Strongyloides stercoralis from other STHs?|B. It has both a parasitic cycle and a free-living cycle in the soil.|A. It only infects animals.|C. It is the largest nematode.|D. Its eggs are the infective stage.
+46. Why is the "Pinworm paddle" test usually done early in the morning?|B. The female worms migrate to the perianal area to lay eggs during the night.|A. The eggs disappear in sunlight.|C. The patient's skin is softer in the morning.|D. It is easier for the lab technician.
+47. In Lymphatic Filariasis, "Elephantiasis" is caused by:|B. Chronic lymphatic obstruction and inflammation due to adult worms.|A. The toxic effect of parasite eggs.|C. Drinking too much water.|D. Bacterial infection only.
+48. The "Calabar swellings" in Loaiasis are:|B. Transient subcutaneous edemas caused by an immune reaction to the migrating adult worm.|A. Permanent tumors.|C. Sites where eggs are deposited.|D. Areas of bacterial infection.
+49. A 5-year-old child presents with a distended abdomen and passes a 20 cm long, pinkish, cylindrical worm. The most likely diagnosis is:|B. Ascariasis.|A. Hookworm infection.|C. Enterobiasis.|D. Trichuriasis.
+50. A construction worker who often walks barefoot on soil presents with severe anemia and fatigue. Stool exam shows oval, thin-shelled eggs. The parasite is:|B. Hookworm (Necator or Ancylostoma).|A. Ascaris lumbricoides.|C. Strongyloides stercoralis.|D. Trichuris trichiura.
+51. A patient presents with a visible worm migrating under the conjunctiva of the eye. He recently returned from West Africa. The diagnosis/treatment is:|B. Loaiasis / Surgical removal.|A. Onchocerciasis / Surgery.|C. Ascariasis / Albendazole.|D. Hookworm / Iron.
+52. You are treating a child for pinworm. Why do you recommend treating the entire household?|B. Because it is highly contagious, and the second dose kills worms that hatched from eggs present during the first treatment.|A. To make more profit.|C. Because the drug is very weak.|D. To prevent the worms from becoming resistant.
+53. After eating undercooked wild boar meat, a patient develops muscle pain, periorbital edema, and high eosinophilia. This clinical picture is highly suggestive of:|B. Trichinosis (Trichinella spiralis).|A. Gnathostomiasis.|C. Anisakiasis.|D. Filariasis.
+54. A traveler returning from a village in Africa has a painful blister on his foot. When the foot is submerged in water, a white, thread-like worm emerges. The correct management is:|B. Gradually wind the worm around a small stick over several days.|A. Pull the worm out quickly.|C. Give high-dose Praziquantel.|D. Amputate the toe.
+55. All trematodes (flukes) require which of the following as their first intermediate host?|B. Snail (Mollusk).|A. Fish.|C. Crustacean (Crab/Crayfish).|D. Mosquito.
+56. The infective stage for humans in most food-borne fluke infections is the:|C. Metacercaria.|A. Miracidium.|B. Cercaria.|D. Redia.
+57. Which fluke lives in the mesenteric veins of the host?|B. Schistosoma mansoni.|A. Fasciola hepatica.|C. Paragonimus westermani.|D. Clonorchis sinensis.
+58. Lung fluke infection (Paragonimus) is typically acquired by eating undercooked:|C. Crabs or crayfish.|A. Watercress.|B. Freshwater fish.|D. Beef.
+59. The diagnostic stage for most trematodes found in a stool sample is the:|B. Egg (often operculated).|A. Larva.|C. Adult worm.|D. Trophozoite.
+60. Schistosoma species differ from other flukes because they:|B. Have separate sexes (dioecious).|A. Are hermaphroditic.|C. Do not require a snail host.|D. Are round in shape.
+61. "Swimmer's itch" is caused by:|B. Penetration of the skin by cercariae (often of non-human schistosomes).|A. Adult schistosomes in the blood.|C. Eating raw snails.|D. Allergic reaction to fish.
+62. Why is chronic infection with Clonorchis sinensis or Opisthorchis associated with Cholangiocarcinoma (bile duct cancer)?|B. Chronic irritation and inflammation of the bile duct epithelium by the flukes.|A. The flukes produce radiation.|C. The flukes eat the liver cells.|D. It is a genetic coincidence.
+63. How do Schistosome eggs cause pathology in the host?|B. By inducing a granulomatous inflammatory response as they move through tissues or lodge in organs (liver/bladder).|A. By eating the host's organs.|C. By releasing toxins that paralyze the heart.|D. By blocking the intestine completely.
+64. "Hematuria" (blood in urine) is a classic sign of infection with which fluke?|B. Schistosoma haematobium.|A. Schistosoma mansoni.|C. Schistosoma japonicum.|D. Fasciola hepatica.
+65. What is the "One Health" approach in controlling liver fluke infections?|B. Combining human treatment, veterinary management of livestock, and environmental snail control.|A. Only treating people.|C. Banning the sale of fish.|D. Using only one type of medicine.
+66. Why does Paragonimus westermani cause symptoms similar to Tuberculosis (TB)?|B. The adult flukes reside in the lungs, causing cough, chest pain, and hemoptysis (blood in sputum).|A. It is a bacterium.|C. It only infects people who already have TB.|D. It is transmitted by coughing.
+67. A 40-year-old man from an area where raw fish is a delicacy presents with jaundice and weight loss. Imaging suggests a bile duct tumor. Which parasite is the most likely risk factor?|B. Clonorchis sinensis.|A. Fasciolopsis buski.|C. Schistosoma mansoni.|D. Paragonimus westermani.
+68. A patient from the Mekong Delta presents with portal hypertension and an enlarged spleen. He has a history of bathing in the river. Stool exam reveals eggs with a small lateral spine. The likely diagnosis is:|A. Schistosoma japonicum (or S. mekongi).|B. Clonorchis sinensis.|C. Fasciola hepatica.|D. Ascaris lumbricoides.
+69. You are examining a sputum sample from a patient with a chronic cough and find large, oval, brownish, operculated eggs. The patient enjoys eating raw "drunken crabs." The diagnosis is:|B. Paragonimiasis.|A. Tuberculosis.|C. Ascariasis.|D. Fasciolopsiasis.
+70. A traveler returning from Lake Malawi has terminal hematuria. Microscopic exam of the urine sediment shows eggs with a prominent terminal spine. The treatment of choice is:|B. Praziquantel.|A. Albendazole.|C. Ivermectin.|D. Metronidazole.
+71. A patient has been diagnosed with Fasciolopsis buski (Giant Intestinal Fluke). How did they most likely acquire this infection?|B. Eating raw water plants like water caltrop or lotus.|A. Eating raw fish.|C. Drinking unfiltered pond water.|D. Walking barefoot in the mud.
+72. Which trematode infection is most likely to be confused with a lung tumor on a chest X-ray?|B. Paragonimus westermani.|A. Fasciola hepatica.|C. Schistosoma haematobium.|D. Clonorchis sinensis.
+73. Which tapeworm is commonly known as the "Pork Tapeworm"?|B. Taenia solium|A. Taenia saginata|C. Diphyllobothrium latum|D. Hymenolepis nana
+74. The infective stage of Taenia saginata for humans is:|B. Cysticercus bovis|A. Embryonated egg|C. Cysticercus cellulosae|D. Coracidium
+75. Which part of the tapeworm is responsible for the production of new segments (proglottids)?|B. Neck|A. Scolex|C. Gravid proglottid|D. Rostellum
+76. Which of the following is the smallest tapeworm infecting humans?|B. Hymenolepis nana|A. Taenia solium|C. Echinococcus granulosus|D. Diphyllobothrium latum
+77. What is the intermediate host of Taenia solium?|B. Pigs|A. Cattle|C. Snails|D. Fish
+78. In Echinococcus granulosus infection, humans act as the:|B. Accidental intermediate host|A. Definitive host|C. Paratenic host|D. Vector
+79. The eggs of Taenia spp. found in stool can be used to differentiate:|D. Only the genus Taenia, not the species|A. T. solium from T. saginata|B. Taenia from Hymenolepis|C. Taenia from Ascaris
+80. What is the morphological difference between the scolex of T. solium and T. saginata?|A. T. solium has a rostellum with hooks; T. saginata has only suckers.|B. T. saginata is smaller.|C. T. solium has 6 suckers.|D. T. saginata has hooks.
+81. A gravid proglottid of Taenia saginata is characterized by:|B. 15-30 lateral uterine branches.|A. 7-13 lateral uterine branches.|C. Absence of a uterus.|D. Having both hooks and suckers.
+82. In Hydatid disease, "daughter cysts" are:|B. Smaller cysts formed inside the primary hydatid cyst.|A. New adult worms.|C. Eggs produced by the cyst.|D. Parasites that live in the blood.
+83. Why is Praziquantel effective against most cestodes?|B. It increases calcium permeability, causing contraction and paralysis.|A. It prevents the worm from breathing.|C. It changes the host's blood pH.|D. It kills the eggs only.
+84. A patient presents with new-onset epilepsy. MRI shows multiple calcified lesions and "cyst with a scolex" in the brain. This is:|A. Neurocysticercosis|B. Hydatid cyst|C. Sparganosis|D. Brain tumor
+85. A patient passes a 5-meter-long ribbon-like worm after eating rare steak. The proglottids are longer than they are wide. The parasite is:|B. T. saginata|A. T. solium|C. D. latum|D. H. nana
+86. A shepherd has a large, fluid-filled mass in the liver. During surgery, the fluid shows "hydatid sand." What does this sand consist of?|B. Free scolices and hooks|A. Calcium deposits|C. Tiny eggs|D. Grains of real sand
+87. A person traveling in Scandinavia eats raw pike fish and develops fatigue and anemia. Which parasite should be suspected?|B. Diphyllobothrium latum|A. Clonorchis sinensis|C. Taenia saginata|D. Paragonimus westermani
+88. Which measure is most specific for preventing Cysticercosis (not just intestinal Taeniasis)?|B. Proper hand hygiene and human feces management.|A. Cooking pork thoroughly.|C. Wearing shoes.|D. Using mosquito nets.
+90. Which parasite is the primary cause of "Visceral Larva Migrans" (VLM)?|A. Toxocara canis|B. Ascaris lumbricoides|C. Ancylostoma duodenale|D. Gnathostoma spinigerum
+91. Humans acquire Trichinella spiralis by eating undercooked meat of:|B. Pigs or wild game (e.g., boar, bear)|A. Fish|C. Snails|D. Vegetables
+92. Which host is the definitive host for Gnathostoma spinigerum?|B. Cats and dogs|A. Humans|C. Frogs|D. Fish
+93. "Cutaneous Larva Migrans" (creeping eruption) is typically caused by:|B. Animal hookworms (e.g., Ancylostoma braziliense)|A. Human hookworms|C. Pinworms|D. Tapeworms
+94. Anisakis larvae are commonly found in:|B. Marine fish and squid|A. Freshwater fish|C. Pork|D. Beef
+95. What is the infective stage of Toxocara for humans?|B. Embryonated eggs|A. L3 larvae in soil|C. Adult worms|D. Cysts in meat
+96. The diagnostic feature of Trichinella spiralis in a muscle biopsy is:|B. Encysted larvae|A. Adult worms|C. Eggs with polar plugs|D. Trophozoites
+97. Which animal serves as the intermediate host for Angiostrongylus cantonensis?|B. Snails or slugs|A. Rats|C. Crabs|D. Fish
+98. "Ocular Larva Migrans" (OLM) is a clinical form of:|B. Toxocariasis|A. Gnathostomiasis|C. Anisakiasis|D. Trichinosis
+99. How does Anisakis cause acute symptoms?|B. By larvae burrowing into the stomach or intestinal wall.|A. By laying millions of eggs.|C. By producing a neurotoxin.|D. By blocking the bile duct.
+100. "Eosinophilia" is a common laboratory finding in zoonotic helminth infections because:|B. It is a specific immune response to tissue-invading helminths.|A. The parasites eat white blood cells.|C. The parasites produce eosinophils.|D. It is a sign of bacterial infection.
+101. In Trichinella infection, why is the migration phase characterized by muscle pain?|B. Larvae are penetrating and encysting in striated muscle fibers.|A. Larvae are eating the muscles.|C. The host loses all muscle mass.|D. It is caused by the adult worms in the heart.
+102. A child playing with puppies has fever, enlarged liver, and 50% eosinophils. ELISA for Toxocara is positive. The diagnosis is:|A. VLM|B. OLM|C. Ascariasis|D. Hookworm
+103. After eating raw fish, a patient develops violent stomach pain within 4 hours. Gastroscopy shows a worm in the mucosa. This is:|A. Anisakiasis|B. Gnathostomiasis|C. Toxocariasis|D. Giardiasis
+104. A patient has severe headache, neck stiffness, and 40% eosinophils in the CSF. He recently ate raw "apple snails." This is:|B. Eosinophilic meningitis|A. Bacterial meningitis|C. Viral encephalitis|D. Cerebral malaria
+105. Ten people developed fever, periorbital edema, and muscle pain after eating "wild boar" meat. The diagnosis is:|B. Trichinosis|A. Salmonellosis|C. Gnathostomiasis|D. Toxoplasmosis
+106. A patient has a granuloma in the retina of one eye. The most important history question is:|B. Do you have contact with dogs/cats or soil contaminated with their feces?|A. Did you eat raw fish?|C. Did you walk barefoot?|D. Do you eat raw pork?
+107. You are a public health officer. What is the best way to prevent Angiostrongylus outbreaks?|B. Educating the public to avoid raw snails and wash vegetables.|A. Vaccinating rats.|C. Mass treatment with Praziquantel.|D. Killing all mosquitoes.
+108. Protozoa are best described as:|C. Unicellular eukaryotes|A. Multicellular eukaryotes|B. Unicellular prokaryotes|D. Acellular infectious agents
+109. Which group of protozoa moves by using temporary cytoplasmic extensions called pseudopodia?|A. Sarcodina (Amoebas)|B. Mastigophora (Flagellates)|C. Ciliophora (Ciliates)|D. Apicomplexa (Sporozoa)
+110. The process of asexual reproduction where the nucleus and cytoplasm divide into multiple daughter cells simultaneously is called:|B. Schizogony (Multiple fission)|A. Binary fission|C. Budding|D. Conjugation
+111. The resistant, inactive stage that allows protozoa to survive harsh environmental conditions is the:|B. Cyst|A. Trophozoite|C. Merozoite|D. Schizont
+112. Which of the following is a characteristic of the Phylum Apicomplexa?|C. They lack specialized locomotive organelles in adult stages.|A. They move using long, whip-like flagella.|B. They possess numerous short cilia.|D. They are all free-living organisms.
+113. The process of a protozoan transforming from a cyst back into a trophozoite is known as:|B. Excystation|A. Encystation|C. Sporulation|D. Gametogony
+114. Which locomotive organelle is characteristic of the Mastigophora group?|B. Flagella|A. Cilia|C. Pseudopodia|D. Tentacles
+115. Why is the trophozoite stage of intestinal protozoa rarely transmitted?|C. It is easily destroyed by the acidic environment of the stomach.|A. It is too large to enter cells.|B. It cannot move in the esophagus.|D. It lacks the DNA required for infection.
+116. What is the primary biological difference between binary fission and schizogony?|A. Binary fission results in two daughter cells, while schizogony results in many.|B. Binary fission is sexual, while schizogony is asexual.|C. Schizogony only occurs in the environment.|D. Binary fission requires a vector.
+120. Why is it often recommended to collect three stool samples on different days for parasite diagnosis?|B. Because parasites are often shed intermittently (not in every bowel movement).|A. To check for different species each day.|C. To see if the parasite grows larger over time.|D. To allow the patient to recover from the first collection.
+121. A patient develops primary amoebic meningoencephalitis after swimming in a warm freshwater lake. The causative agent moves using:|B. Pseudopodia (e.g., Naegleria fowleri)|A. Cilia|C. Flagella|D. No locomotive organs
+122. Under a microscope, you observe a protozoan with two identical nuclei and a symmetrical appearance. This is most likely:|B. Giardia lamblia|A. Entamoeba histolytica|C. Balantidium coli|D. Trypanosoma cruzi
+123. In the control of intestinal protozoa, why is human excreta management the highest priority?|B. It contains the infective cysts that contaminate food and water.|A. It is where the parasites perform binary fission.|C. It provides the heat necessary for eggs to hatch.|D. It attracts the vectors that carry the disease.
+124. Why do anti-protozoal drugs often have more side effects compared to antibiotics?|B. Protozoa are eukaryotes, sharing many biochemical pathways with human cells.|A. Protozoa are larger than bacteria.|C. Protozoa have a thick cell wall.|D. Anti-protozoal drugs must be taken for years.
+125. A mature, infective cyst of Entamoeba histolytica typically contains how many nuclei?|C. 4|A. 1|B. 2|D. 8
+126. What morphological feature identifies the pathogenic E. histolytica trophozoite in a fresh stool sample?|B. The presence of ingested RBCs.|A. The presence of ingested bacteria.|C. Multiple long flagella.|D. A large macronucleus.
+129. Which stage of E. histolytica is the "Infective Stage"?|C. Mature quadrinucleate cyst|A. Trophozoite|B. Precyst|D. Metacyst
+130. Why is Entamoeba coli considered a "commensal" rather than a pathogen?|B. It feeds on bacteria and debris without invading the intestinal wall or consuming RBCs.|A. It cannot survive at human body temperature.|C. It does not produce cysts.|D. It is killed by stomach acid.
+131. Why do patients with amoebic dysentery have blood and mucus in their stool?|B. Tissue invasion causes mucosal hemorrhage and stimulates mucus production.|A. The parasite produces red-colored waste.|C. The cysts are naturally bloody.|D. The parasite causes the host to stop digesting fat.
+132. Where does the "Excystation" of E. histolytica typically occur?|B. Small intestine|A. Mouth|C. Large intestine|D. Liver
+133. Amoebic liver abscesses are usually the result of trophozoites traveling from the gut via the:|B. Hepatic portal vein|A. Lymphatic system|C. Bile duct|D. Hepatic artery
+134. Why are "asymptomatic cyst passers" a significant public health risk?|B. They shed large numbers of infective cysts while appearing healthy.|A. They will eventually develop brain abscesses.|C. They are resistant to all forms of treatment.|D. They can transmit the disease through coughing.
+135. A 30-year-old male presents with bloody diarrhea and abdominal cramps. Stool microscopy reveals trophozoites with ingested RBCs. What is the most likely diagnosis?|A. Acute Amoebic Dysentery|B. Bacillary Dysentery (Shigellosis)|C. Giardiasis|D. Ulcerative Colitis
+136. In a suspected case of Amoebic Liver Abscess, which test is usually more helpful than stool microscopy?|B. Serology (ELISA) for anti-amoebic antibodies|A. Gastric lavage|C. Blood culture|D. Sputum analysis
+137. Why is it dangerous for a patient with undiagnosed amoebic dysentery to take anti-motility drugs (like Loperamide)?|B. It can lead to toxic megacolon or perforation by keeping the invasive parasites in contact with the wall longer.|A. It kills the parasite too quickly.|C. It turns the stool blue.|D. It prevents the absorption of water.
+138. Why can E. histolytica cysts survive in standard chlorinated tap water?|B. The cyst wall is thick and resistant to standard chemical concentrations.|A. Chlorine encourages them to hatch.|C. The cysts hide inside bacteria.|D. Chlorine only kills the trophozoite stage.
+139. To prevent amoebiasis in a rural community, which intervention is the most effective?|C. Improving sanitation and preventing the use of night soil (human feces) as fertilizer.|A. Spraying insecticides for flies.|B. Mass vaccination.|D. Wearing shoes outdoors.
+140. Chronic amoebic colitis often presents as:|B. Recurrent bouts of diarrhea alternating with constipation and abdominal discomfort.|A. Sudden high fever and vomiting.|C. Rapid weight gain.|D. Profuse, watery "rice-water" stools.
+141. Which protozoan has a "monkey face" appearance with two nuclei and four pairs of flagella?|A. Giardia duodenalis|B. Trichomonas vaginalis|C. Trypanosoma brucei|D. Leishmania donovani
+142. Where does Trichomonas vaginalis typically reside in the human body?|C. Urogenital tract (Vagina, urethra, prostate)|A. Duodenum|B. Bloodstream|D. Liver
+143. Chagas disease (American Trypanosomiasis) is caused by:|B. Trypanosoma cruzi|A. Trypanosoma brucei|C. Leishmania tropica|D. Giardia duodenalis
+144. The "Amastigote" stage of Leishmania is found:|A. Inside human macrophages|B. In the midgut of the sand fly|C. Free-swimming in the blood|D. In the human small intestine
+145. The biological vector for Leishmaniasis is the:|C. Sand fly (Phlebotomus / Lutzomyia)|A. House fly|B. Black fly|D. Tick
+146. "Romaña's sign" (painless periorbital edema) is a clinical indicator of:|B. Chagas disease|A. African Sleeping Sickness|C. Visceral Leishmaniasis|D. Trichomoniasis
+147. Giardia duodenalis primarily infects the:|A. Duodenum and upper jejunum|B. Sigmoid colon|C. Rectum|D. Esophagus
+148. The most common mode of transmission for Trichomonas vaginalis is:|B. Sexual contact|A. Contaminated water|C. Vector-borne|D. Inhalation of dust
+149. Why can Trichomonas vaginalis NOT survive for long in the external environment?|B. It lacks a protective cyst stage.|A. It is too large.|C. It requires human blood to breathe.|D. It is killed by oxygen immediately.
+150. How does Trypanosoma brucei cause the neurological symptoms of "Sleeping Sickness"?|B. It invades the Central Nervous System and cerebrospinal fluid, causing encephalitis.|A. It eats brain tissue directly.|C. It produces a toxin that acts as a sedative.|D. It causes massive blood clots in the brain.
+151. When camping in an area where Giardia is endemic, what is the best way to ensure safe drinking water?|B. Boiling water or using a fine-pore (sub-micron) filter.|A. Using a mosquito net.|C. Adding a pinch of salt to the water.|D. Leaving the water in the sun for 1 hour.
+152. A blood smear from a patient with fever reveals C-shaped flagellated protozoa outside the RBCs. The patient likely traveled to:|A. Africa or South America|B. Rural Vietnam|C. Northern Europe|D. Antarctica
+153. Why might a stool exam for Giardia be negative even if the patient has the infection?|B. The shedding of cysts is intermittent; multiple samples or duodenal aspiration may be needed.|A. The parasite only lives in the brain.|C. The parasite turns into a bacterium in the stool.|D. The microscope magnification is usually too low.
+154. Controlling the Phlebotomus sand fly is the key strategy for preventing:|B. Leishmaniasis|A. Malaria|C. Chagas disease|D. Giardiasis
+155. Which animal is the definitive host for Toxoplasma gondii, where sexual reproduction takes place?|B. Domestic and wild cats|A. Dogs|C. Cattle and Pigs|D. Rodents
+156. The slow-growing stage of Toxoplasma gondii found inside tissue cysts during chronic infection is the:|B. Bradyzoite|A. Tachyzoite|C. Sporozoite|D. Merozoite
+157. The rapidly multiplying stage of Toxoplasma gondii responsible for tissue damage in acute infection is the:|A. Tachyzoite|B. Bradyzoite|C. Oocyst|D. Gametocyte
+158. Why is direct person-to-person transmission (fecal-oral) highly unlikely for Cyclospora?|C. Oocysts are non-infectious when first passed in stool and need time to mature in the environment.|A. The oocysts are killed by oxygen.|B. The parasite only infects insects.|D. The parasite only lives in the blood.
+159. Why does Toxoplasma gondii form "tissue cysts" in the brain and muscles?|B. To protect itself from the host's immune system and stay dormant for life.|A. To prepare for sexual reproduction in the human.|C. To help the human host build stronger muscles.|D. To travel to the lungs to be coughed out.
+160. What is the infective stage of Plasmodium transmitted from the mosquito to the human host?|B. Sporozoite.|A. Trophozoite.|C. Merozoite.|D. Gametocyte.
+161. Which morphological feature is characteristic of Plasmodium falciparum gametocytes?|C. Crescent or banana-shaped.|A. Round and compact.|B. Amoeboid shape.|D. Band-shaped.
+162. Schüffner's dots are typically observed in red blood cells infected by which species?|B. P. vivax and P. ovale|A. P. falciparum and P. malariae|C. P. vivax and P. knowlesi|D. P. malariae and P. ovale
+163. What is the standard gold method for laboratory diagnosis of malaria?|C. Microscopic examination of thick and thin blood films|A. Rapid Diagnostic Test (RDT)|B. PCR|D. Serology (ELISA)
+164. The "Plus system" (+ to ++++) in malaria microscopy is used to estimate:|B. The parasite density/parasitemia|A. The size of the parasite|C. The age of the infection|D. The drug resistance level
+165. Relapse in malaria is caused by the activation of dormant stages called:|B. Hypnozoites|A. Schizonts|C. Trophozoites|D. Ookinetes
+166. Why is Plasmodium falciparum malaria considered more dangerous than P. vivax?|B. It causes sequestration of infected RBCs in deep tissue capillaries|A. It only infects young reticulocytes|C. It produces fewer merozoites per schizont|D. It has a longer incubation period
+167. What is the primary advantage of using a thick blood film over a thin blood film?|C. It has a higher sensitivity for detecting low parasitemia|A. It allows better identification of the species|B. It preserves the morphology of the red blood cells|D. It is easier to see Schüffner's dots
+168. The mechanism behind the characteristic fever paroxysms in malaria is:|B. The rupture of erythrocytic schizonts and release of toxins|A. The invasion of the liver by sporozoites|C. The maturation of gametocytes in the skin|D. The biting of the Anopheles mosquito
+169. Sequestration in P. falciparum leads to which of the following clinical complications?|B. Cerebral malaria|A. Benign tertian malaria|C. Chronic splenomegaly|D. Relapse after 2 years
+170. How does P. vivax differ from P. ovale regarding the host red blood cell appearance?|A. P. vivax causes amoebic RBC enlargement, while P. ovale often shows fimbriated (jagged) edges|B. P. vivax shows Maurer's clefts, while P. ovale shows Schüffner's dots|C. P. vivax infects all ages of RBCs, while P. ovale only infects old RBCs|D. There is no morphological difference between them
+171. In a blood smear, multiple ring-stage parasites within a single red blood cell most likely suggest:|B. Plasmodium falciparum|A. Plasmodium malariae|C. Plasmodium vivax|D. A mixed infection of all species
+172. Why is Primaquine essential in the treatment of P. vivax and P. ovale?|C. To eradicate hypnozoites in the liver and prevent relapse|A. To kill the asexual blood stages|B. To prevent transmission by killing gametocytes|D. To reduce high fever rapidly
+173. A patient presents with fever every 48 hours. Microscopic examination shows enlarged RBCs with pale cytoplasm and fine pink stippling. Which species is most likely?|B. P. vivax|A. P. malariae|C. P. falciparum|D. P. knowlesi
+174. If a thick film shows 40 parasites per 200 white blood cells (WBCs), and the patient's WBC count is 8,000/μL, what is the parasite density?|C. 1,600 parasites/μL|A. 400 parasites/μL|B. 800 parasites/μL|D. 2,000 parasites/μL
+175. A blood smear reveals "band-form" trophozoites within non-enlarged red blood cells. The patient reports fever peaks every 3 days. What is the diagnosis?|C. Plasmodium malariae|A. Plasmodium falciparum|B. Plasmodium vivax|D. Plasmodium ovale
+176. An individual with G6PD deficiency needs treatment for P. vivax. Why must Primaquine be used with extreme caution?|B. It can cause severe hemolytic anemia|A. It is ineffective in G6PD-deficient patients|C. It increases the risk of cerebral malaria|D. It causes permanent liver damage
+177. You observe a blood slide with many "maurer's clefts" and high parasitemia but no schizonts. What is the most likely reason for the absence of schizonts?|B. Schizonts are sequestered in the internal organs|A. The species does not produce schizonts|C. The patient has been partially treated|D. Schizonts only appear at night
+178. A 25-year-old patient from a malaria-endemic area has a positive RDT for P. falciparum but a negative blood smear. What should be the next step?|B. Repeat the blood smear using a thicker film and more careful examination|A. Discard the RDT result as a false positive|C. Treat for P. vivax instead|D. Assume the patient is immune and give no treatment
+179. What is the scientific study of insects and related arthropods that affect human health called?|B. Medical Entomology|A. Helminthology|C. Protozoology|D. Herpetology
+180. Which of the following is a characteristic feature of the Class Insecta?|C. Three pairs of legs and three body segments|A. Four pairs of legs|B. Two body segments (cephalothorax and abdomen)|D. Absence of antennae
+181. Which of the following body divisions is characteristic of the Class Arachnida (ticks and mites)?|B. Cephalothorax and abdomen|A. Head, thorax, and abdomen|C. Head and strobila|D. Proglottid and scolex
+182. Which disease is transmitted to humans by the "Black fly" (Simulium)?|A. Onchocerciasis (River blindness)|B. Loiasis|C. Japanese Encephalitis|D. Chagas disease
+183. The "Deer fly" (Chrysops) is responsible for transmitting which of the following parasites?|C. Loa loa|A. Wuchereria bancrofti|B. Plasmodium falciparum|D. Trypanosoma brucei
+184. Which mosquito species is the main vector for Japanese Encephalitis in Vietnam?|C. Culex tritaeniorhynchus|A. Aedes aegypti|B. Anopheles minimus|D. Aedes albopictus
+185. In the classification of life, the phylum that includes insecta and arachnida is:|B. Arthropoda|A. Chordata|C. Nematoda|D. Platyhelminthes
+186. Adult Aedes mosquitoes can be visually distinguished by:|C. White and black markings (lyre-shape or stripes) on the thorax and legs|A. Spotted wings|B. Long maxillary palps in females|D. Resting at a 45-degree angle to the surface
+187. Which resting position is characteristic of an adult Anopheles mosquito?|B. The head and body are kept at an angle (30-45 degrees) to the surface.|A. The body is kept parallel to the resting surface.|C. The mosquito always rests with its wings spread wide.|D. The mosquito only rests on the ceiling.
+188. In the context of vector control, "IRS" stands for:|B. Indoor Residual Spraying|A. Insecticide Resistance Survey|C. Integrated Rodent Supervision|D. Internal Ray Sterilization
+189. In the transmission of Malaria, why is the Anopheles mosquito considered the "Definitive Host" rather than just a vector?|B. Because the sexual cycle (sporogony) of the Plasmodium parasite takes place within the mosquito.|A. Because it is the host where the parasite causes the most damage.|C. Because the mosquito lives longer than the human host.|D. Because the mosquito is the only host that can transmit the disease to others.
+190. A patient presents with a visible worm migrating under the conjunctiva of the eye. To identify the vector, which insect should you investigate in the patient's environment?|B. Chrysops (Deer fly)|A. Anopheles mosquito|C. Phlebotomus (Sand fly)|D. Simulium (Black fly)
+192. Residents present with itchy skin nodules and impaired vision. Which control measure is most appropriate for the specific vector involved?|B. Clearing vegetation and applying insecticides to fast-flowing water for Simulium|A. Larviciding slow-moving streams for Anopheles|C. Using bed nets to prevent Aedes bites during the day|D. Improving household sanitation to reduce house flies
+193. In an urban area with a high density of "container-breeding" mosquitoes, which strategy would be most effective for long-term prevention of Dengue?|B. Removing artificial water containers like old tires and flower pots|A. Mass drug administration|C. Using heavy antibiotics in the water supply|D. Night-time fogging only
+194. Which personal protection measure would be least effective against Aedes mosquitoes, considering their peak activity time?|C. Using a bed net only during the night while the lights are off|A. Using insect repellent during the day|B. Wearing long-sleeved shirts while outdoors at noon|D. Installing window screens in houses
+195. Which term refers to the presence of ectoparasites on a host?|B. Infestation|A. Infection|C. Colonization|D. Incubation
+197. Which family of mites is known for living in skin tunnels and causing mange?|B. Sarcoptidae|A. Demodicidae|C. Psoroptidae|D. Cheyletidae
+198. The adult stage of which parasite is typically described as "cigar-shaped"?|B. Demodex spp.|A. Sarcoptes scabiei|C. Psoroptes spp.|D. Dermanyssus spp.
+199. In which anatomical location do Demodex mites primarily reside?|B. Hair follicles|A. Subcutaneous tunnels|C. Large intestine|D. Red blood cells
+201. Pathogens from ectoparasites are typically transmitted during:|B. Feeding or defecating|A. Respiration|C. Mating|D. Dormancy
+202. Why are endoparasites classified as "holoparasites" while ectoparasites can be "hemiparasites"?|B. Endoparasites depend entirely on the host for their internal environment.|A. Endoparasites are larger in size.|C. Ectoparasites do not require oxygen.|D. Endoparasites only infect humans.
+204. Why is "physician awareness" listed as a clinical diagnostic gap?|A. Ectoparasite-induced dermatitis is frequently misdiagnosed due to unfamiliarity.|B. Physicians are over-trained in ectoparasitology.|C. Ectoparasites do not cause skin symptoms.|D. Diagnosis is only possible through molecular methods.
+206. A patient presents with intense itching and visible "tunnels" under the skin of their hands. Based on the classification, the most likely causative agent belongs to:|A. Family Sarcoptidae|B. Family Demodicidae|C. Family Dermanyssidae|D. Family Psoroptidae
+209. An animal is suffering from "mange" with short-legged mites. Which genus is most likely involved?|B. Sarcoptes|A. Demodex|C. Dermanyssus|D. Cheyletiella
+211. What is the major component of a fungal cell wall?|C. Chitin|A. Peptidoglycan|B. Cellulose|D. Cholesterol
+212. Which sterol is unique to the fungal cell membrane and is a target for many antifungals?|B. Ergosterol|A. Cholesterol|C. Chitin|D. Cellulose
+213. Which culture medium is most commonly used for the primary isolation of fungi?|B. Sabouraud Dextrose Agar (SDA)|A. Blood Agar|C. MacConkey agar|D. Nutrient agar
+214. The thread-like structures that form the body of a mold are called:|C. Hyphae|A. Spores|B. Yeasts|D. Buds
+215. What is the role of KOH (Potassium Hydroxide) in a direct microscopic exam?|B. To dissolve keratin and tissue debris to see fungal elements.|A. To stain the fungi blue.|C. To kill the fungi for safety.|D. To provide nutrition for the fungi.
+216. Which class of drugs includes Amphotericin B and Nystatin?|B. Polyenes|A. Azoles|C. Allylamines|D. Echinocandins
+217. Which staining method is specifically used to visualize the capsule of Cryptococcus?|B. India Ink|A. Gram stain|C. Giemsa stain|D. PAS stain
+218. Which genus of fungi is an example of a unicellular yeast?|B. Candida|A. Aspergillus|C. Penicillium|D. Rhizopus
+219. Why are fungi not sensitive to antibacterial antibiotics like Penicillin?|B. They lack peptidoglycan in their cell wall.|A. They have a thick capsule.|C. They produce enzymes that destroy Penicillin.|D. They are too large to be affected.
+220. What is the primary function of fungal spores?|B. Reproduction and survival|A. Movement|C. Digestion|D. Producing energy
+222. The mechanism of Azole drugs involves inhibiting the synthesis of:|C. Ergosterol|A. Chitin|B. DNA|D. Peptidoglycan
+224. Why should a lab never use a standard bacterial agar to diagnose a slow-growing fungus?|B. Bacteria will overgrow the fungus before it can be seen.|A. The fungus will grow too fast.|C. The agar is toxic to all fungi.|D. Fungi only grow on liquids.
+225. Which systemic fungus is commonly associated with bird (pigeon) droppings?|B. Cryptococcus neoformans|A. Histoplasma|C. Aspergillus|D. Candida
+226. What is the most common way humans get systemic fungal infections?|B. Inhalation of spores|A. Skin contact|C. Eating raw meat|D. Drinking dirty water
+227. Aspergilloma is a "fungus ball" that grows in:|B. Pre-existing lung cavities (like from TB)|A. The brain|C. The stomach|D. The skin
+228. In India Ink preparation, the clear halo around the yeast cell indicates:|B. A capsule|A. A cell wall|C. A nucleus|D. A vacuole
+229. Mucormycosis (Zygomycosis, black fungi) often affects patients with which condition?|A. Uncontrolled diabetes (ketoacidosis)|B. High blood pressure|C. Obesity|D. Broken bones
+230. Why is Cryptococcus neoformans dangerous for AIDS patients?|B. It can easily spread to the brain and cause meningitis.|A. It eats the medicine they take.|C. It is very contagious through coughing.|D. It only lives in hospitals.
+231. Why are systemic mycoses called "endemic"?|B. They are restricted to specific geographic areas.|A. They are everywhere in the world.|C. They only infect children.|D. They are caused by viruses.
+232. "Angioinvasion" means the fungus has the ability to:|B. Invade and grow into blood vessels.|A. Change its color.|C. Produce sugar.|D. Live without oxygen.
+233. The most common clinical sign of Cryptococcus in the CNS is:|B. Meningitis (headache, stiff neck)|A. Blindness|C. Loss of hearing|D. Stomach ache
+234. Opportunistic systemic mycoses (like Candidiasis) usually start from:|B. The patient's own normal flora or hospital environment|A. Soil|C. Pet animals|D. Swimming pools
+235. A diabetic patient has a black, necrotic lesion in their nose/sinus. Microscopic exam shows thick, non-septate hyphae. This is:|B. Mucormycosis (Zygomycosis)|A. Aspergillosis|C. Candidiasis|D. Histoplasmosis
+236. When treating a patient for systemic mycosis with Amphotericin B, what should the nurse monitor most closely?|B. Kidney function (creatinine)|A. Hair loss|C. Vision|D. Hearing
+237. Dermatophytes cause infections because they can digest:|B. Keratin|A. Sugar|C. Fat|D. Muscle
+238. Which of the following is NOT one of the three dermatophyte genera?|D. Malassezia|A. Microsporum|B. Trichophyton|C. Epidermophyton
+239. Tinea unguium is a fungal infection of the:|B. Nails|A. Scalp|C. Face|D. Groin
+240. The term for a dermatophyte that lives in the soil is:|C. Geophilic|A. Anthropophilic|B. Zoophilic|D. Hydrophilic
+241. Tinea capitis affects which part of the body?|A. Scalp and hair|B. Hands|C. Feet|D. Trunk
+242. A "Ringworm" lesion typically looks like:|B. A red, scaly ring with a clear center.|A. A solid red bump.|C. A black dot.|D. A deep hole.
+243. Why do dermatophytes NOT infect internal organs?|B. They cannot grow at 37°C or in areas without keratin.|A. They are killed by white blood cells instantly.|C. They only like light.|D. They are too big to enter the blood.
+244. How does Tinea corporis spread?|B. Direct contact or contaminated objects (fomites).|A. Through the air.|C. Eating mushrooms.|D. Insect bites.
+245. Why is topical cream sometimes ineffective for Tinea capitis?|B. The fungus is deep inside the hair follicle where creams cannot reach.|A. The fungus is in the blood.|C. The cream is too cold.|D. The fungus likes the cream.
+246. A patient has thickened, yellow toenails. The best way to confirm the diagnosis is:|B. KOH exam of subungual (under the nail) debris|A. Blood test|C. Taking a picture|D. Asking about their diet
+247. Pityriasis versicolor is caused by:|B. Malassezia furfur|A. Trichophyton|C. Candida|D. Aspergillus
+248. Tinea nigra appears as:|B. Brown or black patches on the palms or soles.|A. White spots on the hair.|C. Red rings on the chest.|D. Bald spots on the head.
+249. The microscopic "Spaghetti and meatballs" appearance is diagnostic for:|B. Malassezia furfur|A. Candida|C. Trichophyton|D. Histoplasma
+250. Superficial mycoses are limited to which layer?|B. Stratum corneum (outermost skin layer)|A. Dermis|C. Hypodermis|D. Muscle
+251. Malassezia furfur is "lipophilic," meaning it requires:|B. Lipids (oils)|A. Sugar|C. Salt|D. Oxygen
+252. Why are superficial mycoses usually painless and not inflamed?|B. They live in the non-living outer layer of the skin and don't trigger the immune system.|A. The fungi are dead.|C. They produce painkillers.|D. The patient's nerves are destroyed.
+253. Why do Pityriasis versicolor spots look lighter after sunbathing?|B. The fungus produces acid that inhibits melanin (pigment) production.|A. The sun kills the skin.|C. The fungus reflects sunlight.|D. The spots are actually burns.
+`;
+        // =========================================================================
+        // ⬆️ ⬆️ ⬆️  PASTE YOUR RAW STRING DATA INSIDE THESE BACKTICKS  ⬆️ ⬆️ ⬆️
+        // =========================================================================
+
+        let allQuestions = [];
+        const lines = rawData.trim().split('\n');
+        
+        lines.forEach(line => {
+            if (line.trim() === '') return;
+            const parts = line.split('|');
+            if (parts.length === 5) {
+                const match = parts[0].match(/^(\d+)\.\s*(.*)/);
+                let qId = 0;
+                let cleanQuestion = parts[0];
+                
+                if(match) {
+                    qId = parseInt(match[1]);
+                    cleanQuestion = match[2]; 
+                }
+
+                allQuestions.push({
+                    id: qId,
+                    q: cleanQuestion,
+                    correct: parts[1],
+                    wrong: [parts[2], parts[3], parts[4]]
+                });
+            }
+        });
+
+        // Chapter Boundaries mapped from raw data IDs
+        const chaptersInfo = [
+            { title: "Module 1: General Parasitology & Overview", start: 1, end: 35 },
+            { title: "Module 2: Nematodes (Roundworms)", start: 36, end: 54 },
+            { title: "Module 3: Trematodes (Flukes)", start: 55, end: 72 },
+            { title: "Module 4: Cestodes & Zoonotic Helminths", start: 73, end: 107 },
+            { title: "Module 5: General & Intestinal Protozoa", start: 108, end: 159 },
+            { title: "Module 6: Blood Protozoa (Malaria)", start: 160, end: 178 },
+            { title: "Module 7: Medical Entomology & Ectoparasites", start: 179, end: 210 },
+            { title: "Module 8: Medical Mycology (Fungi)", start: 211, end: 253 }
+        ];
+
+        // Global Quiz State
+        let activeQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let wrongAnswersData = [];
+        let currentOptions = [];
+
+        function initMenu() {
+            if (allQuestions.length === 0) {
+                document.getElementById('data-warning').style.display = 'block';
+                document.getElementById('chapter-buttons').style.display = 'none';
+                document.getElementById('final-btn').style.display = 'none';
+                return;
+            }
+
+            const btnContainer = document.getElementById('chapter-buttons');
+            btnContainer.innerHTML = '';
+            
+            chaptersInfo.forEach((ch, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.innerText = ch.title;
+                btn.onclick = () => startQuiz(idx);
+                btnContainer.appendChild(btn);
+            });
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startQuiz(mode) {
+            let moduleTitle = "";
+
+            if (mode === 'all') {
+                moduleTitle = `Final Exam (${allQuestions.length} Questions)`;
+                activeQuestions = [...allQuestions];
+            } else {
+                moduleTitle = chaptersInfo[mode].title;
+                activeQuestions = allQuestions.filter(q => q.id >= chaptersInfo[mode].start && q.id <= chaptersInfo[mode].end);
+            }
+            
+            activeQuestions = shuffle(activeQuestions);
+            currentQuestionIndex = 0;
+            score = 0;
+            wrongAnswersData = [];
+            
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            
+            document.getElementById('module-title').innerText = moduleTitle;
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQ = activeQuestions[currentQuestionIndex];
+            
+            document.getElementById('progress-text').innerText = `${currentQuestionIndex + 1} / ${activeQuestions.length}`;
+            document.getElementById('question-text').innerText = currentQ.q;
+            
+            currentOptions = [currentQ.correct, ...currentQ.wrong];
+            shuffle(currentOptions);
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            currentOptions.forEach((optText) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = optText;
+                btn.onclick = () => selectAnswer(btn, optText, currentQ.correct, currentQ.q);
+                optionsContainer.appendChild(btn);
+            });
+            
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.style.display = 'none';
+        }
+
+        function selectAnswer(selectedBtn, selectedText, correctText, questionText) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+            
+            if (selectedText === correctText) {
+                selectedBtn.classList.add('correct');
+                score++;
+            } else {
+                selectedBtn.classList.add('wrong');
+                wrongAnswersData.push({
+                    q: questionText,
+                    userA: selectedText,
+                    correctA: correctText
+                });
+                
+                allBtns.forEach(btn => {
+                    if (btn.innerText === correctText) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            
+            const nextBtn = document.getElementById('next-btn');
+            if (currentQuestionIndex === activeQuestions.length - 1) {
+                nextBtn.innerText = "Finish Module 🏁";
+            } else {
+                nextBtn.innerText = "Next Question ➡️";
+            }
+            nextBtn.style.display = 'inline-block';
+            nextBtn.onclick = handleNext;
+        }
+
+        function handleNext() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            
+            const maxPoints = 10;
+            const totalQ = activeQuestions.length;
+            const scaledScore = (score / totalQ) * maxPoints;
+            
+            document.getElementById('raw-score').innerText = score;
+            document.getElementById('total-questions').innerText = totalQ;
+            document.getElementById('final-score').innerText = scaledScore.toFixed(1);
+            
+            const wrongList = document.getElementById('wrong-list');
+            wrongList.innerHTML = '';
+            
+            if (wrongAnswersData.length === 0) {
+                wrongList.innerHTML = '<div style="text-align: center; color: var(--success); font-weight: bold; font-size: 1.2rem; padding: 20px;">Perfect! You mastered this module.</div>';
+            } else {
+                wrongAnswersData.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'wrong-item';
+                    div.innerHTML = `
+                        <div class="wrong-question">${index + 1}. ${item.q}</div>
+                        <div>Correct Answer: <span class="correct-answer-text">${item.correctA}</span></div>
+                        <div class="your-answer-text">You answered: ${item.userA}</div>
+                    `;
+                    wrongList.appendChild(div);
+                });
+            }
+        }
+
+        function returnToMenu() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
