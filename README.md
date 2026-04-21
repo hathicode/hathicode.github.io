@@ -8,4 +8,4 @@
 | 🐛 **Parasitology** | Parasitology Quiz chapterwise | 🟢 Active | [▶️ Launch Quiz](https://anuraghmoni35.github.io/parasitology_chapterwise.html) |
 | 💊 **Pathophysiology** | Gemini | 🔴 Inactive | [▶️ Launch Quiz](https://anuraghmoni35.github.io/pathophysiologygemini.html) |
 | 💊 **Pathophysiology** | Chat GPT | 🔴 Inactive | [▶️ Launch Quiz](https://anuraghmoni35.github.io/pathophysiologychatgpt.html) |
-| 💊 **Physiology** | Module wise test | 🟢 Active | [▶️ Launch Quiz](https://anuraghmoni35.github.io/physiology.html) |
+| 💊 **Physiology** | Module wise test | 🟢 Active | [▶️ Launch Quiz](https://hathicode.github.io/physiology.html) |
