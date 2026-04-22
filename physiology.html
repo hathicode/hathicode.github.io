@@ -427,7 +427,7 @@ function showRocket(x, y) {
     r.style.left = (x - 20) + 'px';
     r.style.top = (y - 20) + 'px';
     document.body.appendChild(r);
-    setTimeout(() => r.remove(), 300);
+    setTimeout(() => r.remove(), 600);
 }
 
 function showBomb(x, y) {
@@ -437,7 +437,7 @@ function showBomb(x, y) {
     b.style.left = (x - 30) + 'px';
     b.style.top = (y - 30) + 'px';
     document.body.appendChild(b);
-    setTimeout(() => b.remove(), 300); // Changed from 600ms to 300ms
+    setTimeout(() => b.remove(), 600); // Changed from 600ms to 300ms
 }
 
 function render() {
