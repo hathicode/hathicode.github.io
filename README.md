@@ -3,4 +3,4 @@
 
 | Subject | Module Name | Status | Action |
 | :--- | :--- | :---: | :--- |
-| 🦠 **Pathology** | Lesson-Wise Microbiology | 🟢 Active | [▶️ Launch Quiz](https://hathicode.github.io/patho.html) |
+| 🦠 **Pathology** | Pathology full | 🟢 Active | [▶️ Launch Quiz](https://hathicode.github.io/patho.html) |
