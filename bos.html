@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basics of surgery MCQ Examination</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-border: #22c55e;
+      --success-text: #15803d;
+      --danger-bg: #fee2e2;
+      --danger-border: #ef4444;
+      --danger-text: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #0f766e;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.9rem;
+    }
+
+    .btn-secondary:hover {
+      background-color: #115e59;
+    }
+
+    .progress-bar {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .topic-tag {
+      display: inline-block;
+      background-color: #e0e7ff;
+      color: #3730a3;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .question-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: transparent;
+      text-align: left;
+      font-size: 0.95rem;
+      cursor: pointer;
+      line-height: 1.4;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .option-btn.correct-choice {
+      background-color: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+      color: var(--success-text) !important;
+      font-weight: 600;
+    }
+
+    .option-btn.wrong-choice {
+      background-color: var(--danger-bg) !important;
+      border-color: var(--danger-border) !important;
+      color: var(--danger-text) !important;
+      font-weight: 600;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .badge {
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .feedback-banner {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1.25rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feedback-banner.correct {
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .feedback-banner.incorrect {
+      background-color: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid var(--danger-border);
+    }
+
+    .quiz-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .score-banner {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-radius: 8px;
+      background-color: #f8fafc;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .score-number {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .review-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      background: white;
+    }
+
+    .review-card.correct {
+      border-left: 5px solid var(--success-border);
+    }
+
+    .review-card.incorrect {
+      border-left: 5px solid var(--danger-border);
+    }
+
+    .user-ans { color: #64748b; font-size: 0.9rem; margin-top: 0.25rem; }
+    .correct-ans { color: var(--success-text); font-weight: 600; font-size: 0.9rem; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Upload View -->
+  <div id="upload-screen" class="hidden">
+    <h1>Upload Pathology Questions</h1>
+    <p class="subtitle">Upload your JSON file to generate an interactive quiz with shuffled questions and choices.</p>
+    <div class="upload-area" onclick="document.getElementById('file-input').click()">
+      <svg width="48" height="48" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto 1rem auto; display:block;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+      </svg>
+      <p>Click here or drop your <strong>.json</strong> file</p>
+      <input type="file" id="file-input" accept=".json">
+    </div>
+  </div>
+
+  <!-- Quiz View -->
+  <div id="quiz-screen" class="">
+    <div class="quiz-header">
+      <div class="progress-bar" id="progress-indicator">Question 3 of 176</div>
+      <button class="btn btn-secondary" id="download-btn" onclick="exportStandaloneHTML()">📥 Save Offline Website</button>
+    </div>
+
+    <span class="topic-tag" id="question-topic">Cardiothoracic</span>
+    <h2 class="question-title" id="question-text">Following penetrating trauma to the anterior chest, a patient exhibits hypotension, elevated jugular venous pressure, and muffled heart sounds. What is this clinical triad called, and what does it indicate?</h2>
+    
+    <div class="options-grid" id="options-container"><button class="option-btn" data-key="A" disabled=""><span class="badge">A.</span> <span>Cushing triad; uncal brain herniation</span></button><button class="option-btn" data-key="B" disabled=""><span class="badge">B.</span> <span>Virchow triad; deep vein thrombosis</span></button><button class="option-btn correct-choice" data-key="C" disabled=""><span class="badge">C.</span> <span>Beck's triad; cardiac tamponade</span></button><button class="option-btn wrong-choice" data-key="D" disabled=""><span class="badge">D.</span> <span>Charcot triad; acute ascending cholangitis</span></button></div>
+    <div id="feedback-container"><div class="feedback-banner incorrect">✗ Incorrect. The correct answer is Option C.</div></div>
+
+    <div class="quiz-footer">
+      <button class="btn" id="next-btn" style="display: inline-block;">Next Question</button>
+    </div>
+  </div>
+
+  <!-- Evaluation View -->
+  <div id="result-screen" class="hidden">
+    <h1>Evaluation Complete</h1>
+    <p class="subtitle">Final performance scaled out of 10</p>
+
+    <div class="score-banner">
+      <div class="score-number" id="final-score">0 / 10</div>
+      <p id="score-details" style="color: #64748b; margin-top: 0.5rem;"></p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+      <button class="btn btn-secondary" onclick="exportStandaloneHTML()" style="flex: 1;">📥 Download Standalone Version</button>
+      <button class="btn" onclick="restartQuiz()" style="flex: 1;">Restart (Reshuffle)</button>
+    </div>
+
+    <h3>Performance Summary</h3>
+    <div class="review-list" id="review-container"></div>
+  </div>
+</div>
+
+<script>
+  let rawQuestions = /*EMBEDDED_QUESTIONS*/ [{"topic":"Urology","question":"During physical examination of a 28-year-old male with painless scrotal swelling, the examiner applies a penlight to the mass in a darkened room. Strong positive transillumination is observed. This physical finding strongly suggests which type of lesion?","options":{"A":"A solid intratesticular neoplasm","B":"A fluid-filled lesion such as a hydrocele","C":"An incarcerated indirect inguinal hernia containing bowel","D":"A thrombosed pampiniform plexus"},"correct_answer":"B"},{"topic":"Critical Care","question":"In the immediate postoperative recovery suite, continuous noninvasive pulse oximetry ($SpO_2$) is initiated on a patient recovering from general anesthesia. What physiological parameter does $SpO_2$ primarily evaluate?","options":{"A":"Partial pressure of arterial carbon dioxide ($PaCO_2$)","B":"Oxygen saturation in the blood","C":"Mixed venous oxygen tension ($PvO_2$)","D":"Alveolar-arterial oxygen diffusion gradient"},"correct_answer":"B"},{"topic":"Urology","question":"A 36-year-old male presents with colicky abdominal pain. Deep palpation reveals marked tenderness localized along the anatomical ureteric points. This clinical finding most strongly suggests:","options":{"A":"Acute gangrenous appendicitis","B":"Ureteric stones or other ureteric disease","C":"Ascending cholangitis secondary to choledocholithiasis","D":"Incarcerated femoral hernia"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A 58-year-old woman presents with severe abdominal distension and intermittent cramping pain. Inspection of the abdomen demonstrates visible 'snake-like' peristaltic movements across the abdominal wall. This classic sign is characteristic of:","options":{"A":"Diffuse chemical peritonitis","B":"Mechanical obstruction","C":"Paralytic ileus secondary to hypokalemia","D":"Pneumoperitoneum from perforated ulcer"},"correct_answer":"B"},{"topic":"Urology","question":"A 72-year-old man presents to the emergency department with acute lower abdominal fullness and complete inability to void. Epidemiologically, what is the most common cause of acute urinary retention in older men?","options":{"A":"Urethral stricture disease","B":"Benign prostatic hyperplasia (BPH)","C":"Neurogenic bladder secondary to tabes dorsalis","D":"Impacted distal ureteric calculus"},"correct_answer":"B"},{"topic":"Wound Care & Immunology","question":"A severely malnourished surgical candidate is evaluated prior to elective bowel resection. Poor nutritional status is known to impair host recovery predominantly by which mechanism?","options":{"A":"Accelerating microvascular thrombosis in healthy tissues","B":"Impairing immune function and wound healing","C":"Directly inactivating matrix metalloproteinase cofactors","D":"Causing premature closure of surgical incisional lines"},"correct_answer":"B"},{"topic":"Orthopedics","question":"Following a high-impact motor vehicle collision, a trauma patient undergoes physical examination of the right lower extremity. Together with visible deformity and abnormal mobility, which physical sign represents the third definitive 'certain sign' of a fracture?","options":{"A":"Severe localized hematoma","B":"Crepitus","C":"Absent distal pulses","D":"Surrounding soft-tissue ecchymosis"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"During a routine preoperative clinical assessment, meticulous reconciliation of the patient's current medications and known allergies is conducted. Why is this evaluation considered essential?","options":{"A":"It directly classifies surgical wounds into clean versus dirty categories","B":"Medication use and allergies may directly affect perioperative management","C":"It determines the exact depth score on the Rule of Nines chart","D":"It serves to bypass post-reduction radiological confirmation"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"A 55-year-old chronic cigarette smoker is scheduled for elective laparotomy. Counseling is provided regarding preoperative smoking cessation. What primary physiological benefit does smoking cessation provide prior to surgery?","options":{"A":"Eliminates the risk of catheter-associated urinary tract infections","B":"Improves lung function and reduces complications","C":"Immediately reverses established deep venous thrombosis","D":"Induces rapid hypervascular granulation tissue formation"},"correct_answer":"B"},{"topic":"Trauma","question":"A 32-year-old unrestrained driver arrives at the trauma center following severe blunt abdominal trauma. In such injuries, which solid organ is recognized as one of the most commonly injured?","options":{"A":"The pancreas","B":"The liver","C":"The adrenal gland","D":"The urinary bladder"},"correct_answer":"B"},{"topic":"Trauma","question":"A trauma patient managed non-operatively for a hepatic subcapsular hematoma exhibits sudden hemodynamic instability on hospital day 5. What recognized complication explains this sudden clinical deterioration?","options":{"A":"Secondary bacterial peritonitis from an intact appendix","B":"Delayed rupture of a subcapsular hematoma causing secondary hemorrhage","C":"Acute avascular necrosis of the femoral head","D":"Sudden onset of stage C4 chronic venous insufficiency"},"correct_answer":"B"},{"topic":"Trauma","question":"A patient involved in a motor vehicle collision complains of severe left shoulder pain upon palpation of the left upper abdominal quadrant (Kehr sign). This referred pain is classically associated with:","options":{"A":"Acute cholecystitis with gallstones","B":"Splenic injury","C":"Ruptured urinary bladder","D":"Fracture of the pubic rami"},"correct_answer":"B"},{"topic":"Pulmonology","question":"A post-surgical patient in the intensive care unit develops rapid, shallow respirations. Arterial blood gas (ABG) analysis is ordered. What is the primary clinical value of this test in acute respiratory compromise?","options":{"A":"Directly identifying bacterial colonization of the tracheobronchial tree","B":"Assessing hypoxemia, ventilation, and the severity of respiratory compromise","C":"Measuring the anatomical dead space of the upper airway","D":"Evaluating the compliance of lower extremity veins"},"correct_answer":"B"},{"topic":"Preventive Medicine","question":"A community health clinic implements routine screening programs for early cancer and cardiovascular diseases. What is the fundamental operational focus of secondary prevention?","options":{"A":"Administering universal preventive vaccines before disease exposure","B":"Early detection and intervention before significant disease progression occurs","C":"Physical rehabilitation of end-stage chronic disabilities","D":"Palliative intervention in advanced terminal illness"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"An adult male sustains thermal burns covering his entire anterior trunk and the entire surface of his right upper extremity. According to the adult Rule of Nines, what is the estimated Total Body Surface Area (TBSA) burned?","options":{"A":"18%","B":"27%","C":"36%","D":"45%"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A patient with complete biliary obstruction due to an impacted calculus presents with deep scleral icterus and severe cutaneous excoriations. What is the physiological mechanism responsible for this itching?","options":{"A":"Deposition of unconjugated bilirubin in dermal capillaries","B":"Accumulation of bile salts in the body stimulates nerve endings and causes itching","C":"Selective dermal degranulation of basophils driven by hypoxemia","D":"Direct destruction of nociceptive dermal endings by alkaline phosphatase"},"correct_answer":"B"},{"topic":"Neurosurgery","question":"Following a high-velocity blunt head impact, a patient is found unconscious with decerebrate posturing and a Glasgow Coma Scale (GCS) score of 6. What severity grade of traumatic brain injury (TBI) does this GCS score represent?","options":{"A":"Mild traumatic brain injury","B":"Moderate traumatic brain injury","C":"Severe traumatic brain injury","D":"Transient post-concussive syndrome"},"correct_answer":"C"},{"topic":"Wound Care","question":"A farmer presents with a 4-day-old laceration contaminated with soil, feces, and devitalized necrotic tissue. This wound is classified as a dirty wound. Why does this wound class carry the highest infection risk?","options":{"A":"It lacks an intact epithelial basement membrane","B":"Dirty wounds contain established infection, devitalized tissue, or old traumatic wounds","C":"It prevents the activation of local complement cascades","D":"It is located exclusively in dependent bodily regions"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A 48-year-old female presents with acute right upper quadrant abdominal pain, spiking fevers with rigors, and jaundice. This classic presentation (Charcot triad) is most commonly seen in:","options":{"A":"Acute necrotizing pancreatitis","B":"Biliary obstruction due to stones","C":"Perforated duodenal ulcer","D":"Secondary peritonitis from pelvic inflammatory disease"},"correct_answer":"B"},{"topic":"Wound Care","question":"A laborer steps on a rusty wire that penetrates deeply through his boot into the plantar aspect of his foot. Why do puncture wounds carry an exceptionally high risk of infection?","options":{"A":"The wound margins are extensively crushed and devitalized","B":"The wound tract is deep and may contain retained foreign bodies","C":"They trigger immediate systemic hyperthermia","D":"They stimulate exuberant early granulation tissue that traps bacteria"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"In a patient presenting with complete mechanical small bowel obstruction, what primary pathophysiological event occurs directly proximal to the point of luminal blockage?","options":{"A":"Complete reflex cessation of all digestive secretions","B":"Gas and fluid accumulate proximal to the obstruction, causing bowel distension","C":"Rapid transmural atrophy of the circular muscularis","D":"Immediate spontaneous mucosal fistulization"},"correct_answer":"B"},{"topic":"Urology","question":"A 65-year-old male is admitted with severe distress, lower abdominal agony, and a palpable suprapubic bladder globe. What represents the initial emergency management of acute urinary retention?","options":{"A":"Emergency transurethral prostatectomy","B":"Immediate bladder drainage with urethral catheterization","C":"Administration of high-dose oral antimuscarinics","D":"Intravenous loop diuretic administration"},"correct_answer":"B"},{"topic":"Urology","question":"Unlike patients presenting with the acute form, why do individuals with chronic urinary retention frequently present with minimal subjective discomfort?","options":{"A":"The detrusor muscle undergoes rapid complete denervation","B":"Chronic urinary retention develops slowly and patients may adapt to symptoms over time","C":"Intravesical pressures drop to sub-atmospheric levels","D":"Urine bypasses the urethra via lymphatic collaterals"},"correct_answer":"B"},{"topic":"Urology","question":"A 34-year-old male presents with sudden, excruciating left flank pain radiating downward into his ipsilateral groin and scrotum, accompanied by persistent nausea and vomiting. This presentation is classic for:","options":{"A":"Acute cholecystitis","B":"Renal colic","C":"Testicular hydrocele","D":"Perforated sigmoid volvulus"},"correct_answer":"B"},{"topic":"Proctology","question":"A patient with painless hematochezia and chronic perianal pruritus undergoes evaluation. What is the clinical utility of rigid anoscopy and proctoscopy in this setting?","options":{"A":"They measure dynamic resting pressures of the internal sphincter","B":"They allow direct observation of lesions and tissue biopsy for histopathological diagnosis","C":"They differentiate clean wounds from clean-contaminated wounds","D":"They assess microvascular blood flow across the splenic flexure"},"correct_answer":"B"},{"topic":"Urology","question":"An asymptomatic 60-year-old man is found to have microscopic hematuria on routine testing. Why must unexplained hematuria be thoroughly investigated?","options":{"A":"It universally heralds acute bilateral renal cortical necrosis","B":"Hematuria may be the first manifestation of serious diseases such as urinary tract malignancy","C":"It is an absolute indicator for emergency urethral catheterization","D":"It indicates irreversible diabetic autonomic neuropathy"},"correct_answer":"B"},{"topic":"Orthopedics","question":"When obtaining diagnostic plain radiographs for a suspected fracture of the tibial shaft, the radiology request must include:","options":{"A":"The contralateral extremity for mineral density comparison","B":"Adjacent joints to avoid missing associated fractures or dislocations","C":"A complete skeletal survey including the axial spine","D":"Serial views taken every 2 hours for 24 hours"},"correct_answer":"B"},{"topic":"Urology","question":"A 40-year-old patient presents with acute episodic flank pain and gross hematuria. The presence of hematuria associated with flank pain is highly suggestive of:","options":{"A":"Urinary stone disease","B":"Erythroplasia of Queyrat","C":"Uncomplicated anal fissure","D":"Benign prostatic hyperplasia"},"correct_answer":"A"},{"topic":"Neurosurgery","question":"A patient with an acute traumatic epidural hematoma exhibits progressive clinical deterioration. What is the classic triad of uncal herniation?","options":{"A":"Hypertension, bradycardia, and abnormal respiration","B":"Decreasing consciousness, ipsilateral dilated pupil, and contralateral hemiplegia","C":"Hypotension, elevated jugular venous pressure, and muffled heart sounds","D":"Fever, localized neck rigidity, and photophobia"},"correct_answer":"B"},{"topic":"Clinical Reasoning","question":"In the clinical reasoning process, what is the diagnostic role of eliciting negative physical examination findings?","options":{"A":"They indicate that the clinical interview was conducted improperly","B":"Positive findings support a diagnosis, while negative findings help exclude alternative diagnoses and strengthen clinical reasoning","C":"They prove that surgical site infection is entirely impossible","D":"They replace the necessity of checking postoperative vital signs"},"correct_answer":"B"},{"topic":"Clinical Diagnostics","question":"When requesting laboratory or imaging studies for an admitted patient, which principle should justify each investigation?","options":{"A":"Investigations must be ordered solely to meet hospital administrative coding requirements","B":"Every investigation should have a clinical purpose such as confirming diagnosis, assessing severity, detecting complications, or determining prognosis","C":"Studies should be performed only when the patient has no symptoms","D":"All imaging modalities must precede airway stabilization in acute trauma"},"correct_answer":"B"},{"topic":"Immunology & Metabolism","question":"A diabetic surgical patient maintains poorly controlled postoperative blood glucose levels exceeding 250 mg/dL. How does hyperglycemia impair host defenses against surgical infections?","options":{"A":"It directly lyses circulating platelets in the terminal capillaries","B":"Hyperglycemia impairs leukocyte activity and host immune defense, increasing susceptibility to infection","C":"It prevents the hepatic production of conjugated bilirubin","D":"It accelerates the breakdown of collagen triple helices via elastase"},"correct_answer":"B"},{"topic":"Trauma","question":"A trauma patient is evaluated in the emergency department following blunt abdominal trauma. Bedside ultrasound is immediately performed because:","options":{"A":"It definitively stages retroperitoneal pelvic fractures","B":"Ultrasound can quickly identify free fluid that may represent blood","C":"It measures intracranial pressure dynamics through intact bone","D":"It provides microscopic histological analysis of solid organs"},"correct_answer":"B"},{"topic":"Neurosurgery","question":"A patient with a traumatic intracranial hematoma demonstrates hypertension, progressive bradycardia, and irregular respirations. What is this clinical triad called, and what does it indicate?","options":{"A":"Beck's triad; indicating pericardial tamponade","B":"Cushing triad; a late sign of increased intracranial pressure and possible brain herniation","C":"Charcot triad; indicating acute ascending cholangitis","D":"Virchow triad; indicating accelerated intravascular thrombosis"},"correct_answer":"B"},{"topic":"Proctology","question":"Which of the following positions represents one of the standard clinical positions utilized for anorectal examination?","options":{"A":"Trendelenburg position","B":"The left lateral position","C":"Prone position with extended hips","D":"Full upright seated position"},"correct_answer":"B"},{"topic":"Orthopedics","question":"During physical examination of an injured shoulder following trauma, the examiner observes the 'empty socket sign.' This sign occurs when:","options":{"A":"Cartilage is completely destroyed by severe osteomyelitis","B":"The displaced articular head is no longer palpable in its normal anatomical position","C":"Synovial fluid has been completely aspirated from the capsule","D":"The acromion undergoes acute avulsion fracture"},"correct_answer":"B"},{"topic":"Urology & Oncology","question":"Examination of the glans penis in an uncircumcised male reveals a solitary, well-demarcated, red, shiny, velvety plaque. Biopsy confirms Erythroplasia of Queyrat. This premalignant lesion is frequently associated with:","options":{"A":"Epstein-Barr virus (EBV) infection","B":"Human Papillomavirus (HPV) infection","C":"Herpes simplex virus type 2 (HSV-2) infection","D":"Chlamydia trachomatis infection"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"Which of the following encompasses the primary recognized causative agents of burn injuries?","options":{"A":"Thermal, electrical, chemical, or radiation injury","B":"Hypoxic, ischemic, compressive, or thrombotic injury","C":"Infectious, autoimmune, metabolic, or congenital trauma","D":"Mechanical shear, crush, and avulsion forces alone"},"correct_answer":"A"},{"topic":"Wound Care","question":"A patient sustains a high-energy crush injury to the calf with marked muscle swelling and contamination. What is the surgical rationale for initially leaving this crush wound open?","options":{"A":"Crush wounds heal exclusively via dystrophic calcification","B":"Crush wounds often contain extensive tissue damage and contamination; leaving them open allows reassessment and reduces infection risk","C":"Open wounds do not require surgical debridement or irrigation","D":"It promotes immediate primary intention closure without scaring"},"correct_answer":"B"},{"topic":"Urology & Oncology","question":"A 26-year-old male presents with a firm, non-tender mass within the right testicle that does not transilluminate. What is the cardinal clinical rule regarding such findings?","options":{"A":"It should be treated conservatively with antibiotics for 6 months","B":"A solid painless testicular mass should be considered malignant until proven otherwise","C":"It is definitively diagnostic of a communicating hydrocele","D":"It should be evaluated with immediate percutaneous needle core biopsy"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"A 68-year-old patient with poorly controlled hypertension and chronic obstructive pulmonary disease is evaluated before elective colectomy. Why must comorbid diseases be optimized prior to surgery?","options":{"A":"To eliminate the need for postoperative pain management","B":"Comorbid diseases should be optimized to reduce surgical risk","C":"To prevent the necessity of verifying patient identification","D":"To avoid performing a complete blood count postoperatively"},"correct_answer":"B"},{"topic":"Trauma","question":"Following blunt thoracic and abdominal trauma, a patient experiences left-sided upper quadrant tenderness and referred pain to the left shoulder (Kehr sign). This sign typically indicates:","options":{"A":"Perforated duodenal diverticulum","B":"Splenic injury or hemoperitoneum","C":"Impacted common bile duct calculus","D":"Acute right diaphragmatic rupture"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"A firefighter is rescued from a burning structure with burns extending across both thighs. The burned areas appear dry, leathery, and white, with complete absence of pain sensation upon pinprick testing. Why is pain sensation absent?","options":{"A":"Severe carbon monoxide poisoning acts as a local anesthetic","B":"Full-thickness burns destroy sensory nerve endings, resulting in absent pain sensation","C":"Local edema elevates interstitial pressure above systemic nociceptive thresholds","D":"The patient's brain experiences transient ischemic desensitization"},"correct_answer":"B"},{"topic":"General Surgery","question":"How is peritonitis defined pathophysiologically in surgical practice?","options":{"A":"Non-inflammatory retroperitoneal fibrosis compressing the great vessels","B":"An acute inflammatory reaction of the peritoneum caused by infection or chemical irritation","C":"Hyperplastic epithelial proliferation of the parietal peritoneum","D":"Idiopathic ischemic necrosis confined strictly to the visceral mesentery"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"Which of the following accurately illustrates characteristic injury depth patterns produced by different burn agents?","options":{"A":"Wet heat causes deep bone necrosis, while electricity causes superficial erythema","B":"Wet heat often causes superficial burns, while electricity commonly causes deep burns","C":"Chemical burns are universally superficial second-degree burns","D":"Radiation burns exclusively produce dry, charred fourth-degree eschars"},"correct_answer":"B"},{"topic":"Gynecology & Surgery","question":"A 23-year-old female presents with lower abdominal pain, guarding, and fever. In women of reproductive age, which condition represents an important cause of secondary peritonitis?","options":{"A":"Erythroplasia of Queyrat","B":"Pelvic inflammatory disease","C":"Choledochal cyst","D":"Sigmoid volvulus"},"correct_answer":"B"},{"topic":"Orthopedics & Neurology","question":"A 45-year-old construction worker complains of sharp, shooting pain radiating down his right leg into his foot. Straight-leg raising to 45 degrees reproduces this radicular pain (positive Lasègue test). This finding suggests:","options":{"A":"Avascular necrosis of the femoral head","B":"Lumbosacral nerve root irritation","C":"Tear of the anterior cruciate ligament","D":"Incompetence of the deep calf perforating veins"},"correct_answer":"B"},{"topic":"Urology","question":"A patient reports noticing bright red blood only at the very end of urination (terminal hematuria). This presentation typically points to an anatomical origin in the:","options":{"A":"Renal parenchyma or renal pyramids","B":"Bladder neck or bladder","C":"Anterior spongy urethra","D":"Perineal subcutaneous vessels"},"correct_answer":"B"},{"topic":"Physical Examination","question":"In a female patient presenting with acute lower abdominal pain where standard abdominal palpation yields equivocal findings, which additional examination steps may reveal hidden pelvic pathology?","options":{"A":"Tympanic membrane otoscopy and cranial nerve testing","B":"Rectal and vaginal examination","C":"Anorectal manometry and barium swallow","D":"Doppler ultrasonography of the popliteal vein"},"correct_answer":"B"},{"topic":"Neurology & Spine","question":"A patient with lumbar spine pathology presents with new-onset urinary retention, urinary incontinence, or fecal incontinence. What does this development signify?","options":{"A":"A benign muscular strain requiring simple outpatient reassurance","B":"Serious neurological compromise requiring urgent evaluation","C":"Adverse drug reaction to prophylactic antibiotic therapy","D":"Transient psychogenic conversion disorder"},"correct_answer":"B"},{"topic":"General Surgery","question":"A patient with generalized peritonitis undergoes abdominal examination. Auscultation reveals a completely 'silent abdomen.' What pathophysiological mechanism accounts for this finding?","options":{"A":"Accumulation of massive subcutaneous emphysema muffles sound transmission","B":"Inflammation of the peritoneum inhibits intestinal motility, producing a silent abdomen","C":"Intense arteriolar vasoconstriction completely eliminates gut perfusion","D":"The transverse colon becomes completely compressed by an enlarged bladder"},"correct_answer":"B"},{"topic":"Orthopedics","question":"A patient arrives at the clinic with a dislocated elbow that occurred during a fall 4 weeks ago. How is this injury classified?","options":{"A":"Acute dislocation","B":"Old dislocation","C":"Pathological dislocation","D":"Habitual subluxation"},"correct_answer":"B"},{"topic":"Pulmonology","question":"A trauma patient with chest pain and dyspnea exhibits hyperresonance upon percussion of the right hemithorax paired with absent breath sounds on auscultation. What is the diagnosis?","options":{"A":"Massive hemothorax","B":"Pneumothorax","C":"Right lower lobe lobar consolidation","D":"Cardiac tamponade"},"correct_answer":"B"},{"topic":"Orthopedics","question":"Which clinical classification system is accepted worldwide as the standard framework for evaluating and categorizing open fractures?","options":{"A":"Salter-Harris classification","B":"Gustilo classification","C":"CEAP classification","D":"Lund and Browder classification"},"correct_answer":"B"},{"topic":"Proctology","question":"A 32-year-old male presents with sudden-onset, exquisitely tender perianal swelling that appeared after heavy lifting. Inspection reveals a discrete, painful, bluish nodule at the anal verge. This is the classic appearance of:","options":{"A":"An acute anal fissure","B":"A thrombosed external hemorrhoid","C":"Anorectal squamous cell carcinoma","D":"A prolapsing internal hemorrhoid with necrosis"},"correct_answer":"B"},{"topic":"Clinical Reasoning","question":"What is the primary function of establishing a formal differential diagnosis during patient workup?","options":{"A":"It permanently replaces the necessity of performing a physical examination","B":"Differential diagnosis considers diseases with similar manifestations and helps direct further investigations and management","C":"It provides legal immunity against hospital-acquired surgical site infections","D":"It verifies whether the patient requires pre-reduction radiographs"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"On postoperative day 1 following an uncomplicated abdominal procedure, the nursing team assists the patient with ambulation. Which two major postoperative complications does early mobilization specifically help prevent?","options":{"A":"Incisional hernia and suture abscess","B":"Pneumonia and deep vein thrombosis","C":"Urinary stone formation and bile duct obstruction","D":"Acute pancreatitis and gastric stress ulceration"},"correct_answer":"B"},{"topic":"Urology","question":"Which clinical statement correctly defines urinary retention?","options":{"A":"Complete cessation of renal glomerular filtration resulting in zero urine production","B":"Urinary retention occurs when urine is present in the bladder but the patient cannot urinate or cannot empty the bladder completely","C":"Involuntary loss of urine associated with a sudden rise in intra-abdominal pressure","D":"Painful burning during micturition with persistent frequency and urgency"},"correct_answer":"B"},{"topic":"General Surgery","question":"Among adult patients presenting to the emergency department with acute abdominal pathology, what is the most common presenting symptom?","options":{"A":"High-grade fever with rigors","B":"Sudden abdominal pain","C":"Persistent bilious vomiting","D":"Generalized cutaneous jaundice"},"correct_answer":"B"},{"topic":"Neurology & Spine","question":"During evaluation of a patient with suspected spinal trauma, the clinician systematically tests myotomes. What is the clinical purpose of myotome testing?","options":{"A":"It evaluates sensory dermatomal boundaries along the trunk","B":"Myotome testing evaluates muscle groups supplied by specific spinal nerve roots and helps localize neurological lesions","C":"It quantifies systemic bone mineral density prior to fracture reduction","D":"It confirms the presence of intact joint elastic resistance"},"correct_answer":"B"},{"topic":"Trauma","question":"During the primary survey of a multi-trauma patient arriving in the resuscitation bay, what management step is always the absolute first priority?","options":{"A":"Placement of an indwelling urethral catheter","B":"Airway management with simultaneous cervical spine protection","C":"Emergency reduction of associated open joint dislocations","D":"Comprehensive digital rectal and vaginal examination"},"correct_answer":"B"},{"topic":"Vascular Surgery","question":"A patient with unilateral lower extremity swelling undergoes diagnostic evaluation. What vascular parameters does Doppler ultrasound assess in this setting?","options":{"A":"Capillary basement membrane permeability and interstitial fluid volume","B":"Doppler ultrasound assesses venous reflux, valve function, venous obstruction, and deep vein thrombosis","C":"Arteriolar wall calcification and pulse wave propagation speed","D":"Direct compliance of the central thoracic vena cava"},"correct_answer":"B"},{"topic":"Urology","question":"A 68-year-old male with lower urinary tract obstruction is examined. On inspection and palpation, a smooth, rounded, dull mass is identified rising above the pubic symphysis. This palpable suprapubic bladder globe is a classic sign of:","options":{"A":"Acute appendicitis with abscess formation","B":"Acute urinary retention","C":"Secondary generalized peritonitis","D":"Testicular hydrocele extending proximally"},"correct_answer":"B"},{"topic":"Pharmacology & Surgery","question":"Prior to skin incision for an elective surgical procedure, an appropriate intravenous antibiotic is administered. What is the explicit clinical intent of surgical antibiotic prophylaxis?","options":{"A":"To sterilize all mucous membranes and erase normal resident microflora permanently","B":"Surgical antibiotic prophylaxis is intended to reduce bacterial contamination and prevent postoperative infection","C":"To provide definitive treatment for deep, established closed-space abscesses","D":"To accelerate the remodeling phase of connective tissue scar deposition"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"A patient sustains scattered, irregular splash burns across his extremities. Which surface area estimation method uses the patient's palm as a reference to calculate the burn extent?","options":{"A":"The Lund and Browder chart","B":"The Blokhin method","C":"The Gustilo grading system","D":"The CEAP assessment method"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"What are the normal physiological functions of the gallbladder in human digestion?","options":{"A":"Synthesizing primary bile acids from circulating cholesterol molecules","B":"The gallbladder stores bile and absorbs water, concentrating the bile before release into the intestine","C":"Directly hydrolyzing pancreatic enzymes within its lumen prior to excretion","D":"Conjugating free bilirubin via UDP-glucuronosyltransferase"},"correct_answer":"B"},{"topic":"Urology","question":"What is the defining anatomical lesion responsible for the formation of a hydrocele?","options":{"A":"Varicose dilatation of the internal spermatic veins above the testis","B":"Accumulation of fluid within the tunica vaginalis surrounding the testis","C":"Purulent bacterial collection inside the epididymal head","D":"Herniation of retroperitoneal fat through the external inguinal ring"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"In the immediate postoperative period, which vital sign is routinely monitored to ensure cardiovascular stability and detect early hypovolemia?","options":{"A":"Blood pressure","B":"Urine urobilinogen concentration","C":"Total serum alkaline phosphatase","D":"Erythrocyte sedimentation rate"},"correct_answer":"A"},{"topic":"Perioperative Care","question":"What is the primary overarching clinical goal of comprehensive preoperative patient preparation?","options":{"A":"To convert dirty wounds into clean surgical incisions primarily","B":"Proper preoperative preparation helps reduce complications and improve surgical outcomes","C":"To avoid the necessity of monitoring postoperative vital signs","D":"To eliminate the need for surgical antibiotic prophylaxis"},"correct_answer":"B"},{"topic":"Urology","question":"An adult male presents with scrotal swelling. On physical examination, how does an uncomplicated hydrocele characteristically present?","options":{"A":"Exquisitely tender, hot, erythematous mass with scrotal wall thickening","B":"Painless, soft, smooth enlargement of the scrotum","C":"Hard, nodular, irregular mass fixed to the scrotal skin","D":"Bilateral cord-like swelling that disappears only when upright"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A patient experiences recurrent attacks of fever, right upper quadrant pain, and fluctuating jaundice (Charcot triad). These recurrent attacks strongly suggest the presence of:","options":{"A":"Primary sclerosing cholangitis","B":"Common bile duct stones","C":"Congenital choledochal cyst","D":"Acute viral hepatitis"},"correct_answer":"B"},{"topic":"Orthopedics","question":"On clinical examination of an acutely fractured extremity, which triad of findings represents the classic 'certain signs' of a fracture?","options":{"A":"Pain, localized ecchymosis, and soft-tissue swelling","B":"The combination of deformity, abnormal mobility, and crepitus","C":"Deformity, empty socket sign, and spring sign","D":"Paresthesia, pallor, and pulselessness"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"A 70-year-old patient with ischemic cardiomyopathy and previous myocardial infarction requires urgent surgery. Preexisting cardiac disease affects the surgical course because:","options":{"A":"It universally accelerates the remodeling phase of bone healing","B":"Cardiac disease may increase perioperative morbidity and mortality","C":"It confers immunity against deep venous thrombosis","D":"It prevents the accumulation of subcapsular hematomas"},"correct_answer":"B"},{"topic":"General Surgery","question":"Palpation of the abdomen in a patient with a perforated gastric ulcer reveals marked, involuntary board-like rigidity. What does this sign signify?","options":{"A":"Voluntary patient anxiety that disappears when distracted","B":"Board-like rigidity represents the most severe abdominal wall reaction and usually indicates diffuse peritoneal irritation","C":"Localized mechanical small bowel obstruction","D":"Simple acute urinary retention with bladder distension"},"correct_answer":"B"},{"topic":"Urology","question":"In patients presenting to the emergency department with acute renal colic, approximately what proportion of episodes is caused directly by urinary stones?","options":{"A":"Less than 10%","B":"Approximately two-thirds","C":"Exactly one-fourth","D":"100% of all cases"},"correct_answer":"B"},{"topic":"Orthopedics","question":"During physical evaluation of an acute joint dislocation, which three findings represent the classic 'certain signs' of joint dislocation?","options":{"A":"Deformity, abnormal mobility, and crepitus","B":"The combination of deformity, empty socket sign, and spring sign","C":"Pain, functional impairment, and swelling","D":"Pallor, paresthesia, and pulselessness"},"correct_answer":"B"},{"topic":"Vascular Surgery","question":"A patient with penetrating extremity trauma presents with a tense, pulsatile swelling that is rapidly expanding over the femoral triangle. An expanding hematoma represents:","options":{"A":"A soft sign of vascular trauma that can be observed safely","B":"One of the classic hard signs of major arterial injury that requires urgent vascular assessment","C":"A definitive certain sign of an underlying joint dislocation","D":"A classic physical manifestation of acute urinary retention"},"correct_answer":"B"},{"topic":"Infectious Disease","question":"A hospitalized patient has had an indwelling urethral catheter in place for 14 days. What is the most common hospital-acquired infection, strongly associated with prolonged catheterization?","options":{"A":"Ventilator-associated pneumonia","B":"Catheter-associated urinary tract infection (CAUTI)","C":"Clostridioides difficile colitis","D":"Surgical site infection"},"correct_answer":"B"},{"topic":"Pediatric Surgery","question":"An 8-year-old child presents with episodic jaundice, right upper quadrant pain, and a palpable abdominal mass. What congenital biliary abnormality commonly presents in childhood?","options":{"A":"Erythroplasia of Queyrat","B":"Choledochal cyst","C":"Testicular hydrocele","D":"Intussusception"},"correct_answer":"B"},{"topic":"Proctology","question":"A 40-year-old male notices bright red blood coating the stool and dripping into the toilet bowl during defecation, unaccompanied by severe pain. What anorectal lesion commonly causes this bleeding pattern?","options":{"A":"Acute anal fissure","B":"Hemorrhoids","C":"Sigmoid volvulus","D":"Thrombosed external hemorrhoid"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A plain abdominal X-ray obtained in an erect position reveals dilated bowel loops displaying multiple air-fluid levels located centrally in the abdomen. This pattern is characteristic of:","options":{"A":"Perforated peptic ulcer","B":"Small bowel obstruction","C":"Sigmoid volvulus","D":"Diffuse acute appendicitis"},"correct_answer":"B"},{"topic":"General Surgery","question":"A 21-year-old male presents with anorexia, low-grade fever, and localized pain in the right iliac fossa. What combination of clinical findings is highly suggestive of acute appendicitis?","options":{"A":"Epigastric burning and relief following meals","B":"The combination of right lower quadrant pain and McBurney point tenderness","C":"Right upper quadrant pain and positive Murphy sign","D":"Flank pain radiating to the groin with hematuria"},"correct_answer":"B"},{"topic":"Cardiothoracic","question":"Following penetrating trauma to the anterior chest, a patient exhibits hypotension, elevated jugular venous pressure, and muffled heart sounds. What is this clinical triad called, and what does it indicate?","options":{"A":"Charcot triad; acute ascending cholangitis","B":"Beck's triad; cardiac tamponade","C":"Cushing triad; uncal brain herniation","D":"Virchow triad; deep vein thrombosis"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"Physical examination of a burn wound shows thin blisters containing clear yellow fluid, accompanied by an intensely painful pink wound base. These findings are typical of:","options":{"A":"First-degree burns","B":"Second-degree burns","C":"Third-degree burns","D":"Fourth-degree burns"},"correct_answer":"B"},{"topic":"Urology","question":"During physical examination of the abdomen, the clinician performs bimanual palpation of the flank and elicits a positive kidney ballottement test. What does this physical finding suggest?","options":{"A":"A dislocated femoral head","B":"An enlarged kidney","C":"A distended urinary bladder globe","D":"A perforated peptic ulcer"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A patient with suspected mechanical bowel obstruction arrives in the emergency department. What diagnostic study remains the most important initial imaging modality?","options":{"A":"Contrast-enhanced abdominal MRI","B":"Plain abdominal X-ray","C":"Diagnostic laparoscopy","D":"Transabdominal Doppler ultrasound"},"correct_answer":"B"},{"topic":"Physical Examination","question":"When examining a patient presenting with localized abdominal pain, why should palpation deliberately begin away from the painful area?","options":{"A":"To accelerate the onset of reflex visible peristalsis","B":"To minimize discomfort and avoid misleading findings caused by guarding","C":"To allow time for surgical antibiotic prophylaxis to reach tissue equilibrium","D":"To verify that the bladder has fully distended into a suprapubic globe"},"correct_answer":"B"},{"topic":"Pulmonology","question":"A patient sustains a penetrating thoracic wound that allows air to enter the pleural space. What pathophysiological mechanism results in lung collapse?","options":{"A":"Air entering the pleural cavity abolishes normal negative pleural pressure, allowing the lung to collapse","B":"Air stimulates immediate severe intra-alveolar hypersecretion of mucus","C":"The entered air increases intrapleural negative pressure, compressing the alveoli","D":"Intrapleural air directly coagulates surfactant proteins in the opposite lung"},"correct_answer":"A"},{"topic":"Wound Care","question":"On postoperative day 5 following appendectomy, a patient's surgical incision is inspected. Which combination of signs strongly suggests an established wound infection?","options":{"A":"Moist beefy-red granulation tissue that bleeds upon contact","B":"Redness, swelling, and purulent discharge","C":"Thin-walled blisters filled with clear yellow serous fluid","D":"Dry, leathery black eschar with complete absence of sensation"},"correct_answer":"B"},{"topic":"Orthopedics","question":"What is the primary clinical objective of obtaining plain radiographs of a suspected joint dislocation before attempting reduction?","options":{"A":"To evaluate systemic bone mineral density","B":"X-rays help confirm the direction of dislocation and detect associated fractures that may alter treatment","C":"To measure the bacterial count within the damaged synovial membrane","D":"To determine whether the patient requires urgent smoking cessation"},"correct_answer":"B"},{"topic":"Urology","question":"Clinically, urinary retention is categorized into which two major presentation forms?","options":{"A":"Infectious urinary retention and neoplastic urinary retention","B":"Acute urinary retention and chronic urinary retention","C":"Initial urinary retention and terminal urinary retention","D":"Traumatic urinary retention and iatrogenic urinary retention"},"correct_answer":"B"},{"topic":"Urology","question":"In the workup of urological pathology, what is the primary diagnostic utility of computed tomography (CT)?","options":{"A":"Direct dynamic measurement of internal anal sphincter tone","B":"CT scan is highly valuable for evaluating renal tumors, upper urinary tract malignancies, trauma, and renal cysts","C":"Providing continuous noninvasive monitoring of blood oxygen saturation","D":"Assessing age-adjusted body surface area estimates in pediatric burns"},"correct_answer":"B"},{"topic":"Clinical Practice","question":"During patient history taking, how is the 'chief complaint' formally defined?","options":{"A":"The complete chronological progression of past illnesses and surgeries","B":"The chief complaint is the symptom that most strongly motivates the patient to seek medical care","C":"The differential diagnosis list formulated after physical examination","D":"The primary legal and healthcare documentation summary"},"correct_answer":"B"},{"topic":"Urology","question":"A patient with painless gross hematuria undergoes workup. Which investigation represents the gold standard for evaluating hematuria originating from the lower urinary tract?","options":{"A":"Pelvic magnetic resonance imaging","B":"Cystoscopy","C":"Transabdominal renal ultrasound","D":"Plain radiography of the kidneys, ureters, and bladder (KUB)"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A patient presents with clay-colored stools, dark urine, and jaundice. Serum liver function tests are ordered. What biochemical pattern of hyperbilirubinemia is typical of obstructive jaundice?","options":{"A":"Isolated elevation of unconjugated (indirect) bilirubin","B":"Obstructive jaundice typically causes elevation of direct (conjugated) bilirubin","C":"Marked reduction in total circulating bilirubin levels","D":"Normal direct bilirubin with elevated urine urobilinogen"},"correct_answer":"B"},{"topic":"Neurosurgery","question":"A trauma patient arrives at the emergency department following acute head trauma. Why is a non-contrast head CT scan the primary imaging study of choice?","options":{"A":"It permanently avoids any exposure to ionizing radiation","B":"Non-contrast head CT is the primary imaging study because it rapidly detects intracranial hemorrhage, fractures, edema, and mass effect","C":"It measures arterial blood gas tensions and oxygen saturation continuously","D":"It replaces clinical myotome testing and neurological localization"},"correct_answer":"B"},{"topic":"Proctology","question":"A patient presenting with fecal incontinence is referred for diagnostic workup. Which investigation evaluates sphincter function in this patient?","options":{"A":"Anorectal manometry","B":"Plain abdominal radiography","C":"FAST ultrasonography","D":"Rigid cystoscopy"},"correct_answer":"A"},{"topic":"Orthopedics","question":"A 24-year-old athlete sustains an anterior shoulder dislocation during a game. Why is prompt, early reduction strongly advocated?","options":{"A":"It converts a closed dislocation into an incised wound","B":"Early reduction is easier, improves recovery, and decreases the risk of cartilage damage and long-term complications","C":"It eliminates the need to evaluate adjacent neurovascular integrity","D":"It ensures that no tears of the joint capsule or ligaments have occurred"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"A postoperative patient develops acute respiratory distress in the post-anesthesia recovery unit. What are the immediate clinical assessment priorities?","options":{"A":"Airway and breathing assessment are priorities in postoperative respiratory problems","B":"Measurement of residual urine output via ultrasound","C":"Inspection of the surgical wound for granulation tissue","D":"Palpation of peripheral pulses for the 5 P's"},"correct_answer":"A"},{"topic":"Burn Surgery","question":"In the standard adult Rule of Nines, what exact percentage of Total Body Surface Area (TBSA) is assigned to the anterior trunk?","options":{"A":"9%","B":"18%","C":"27%","D":"36%"},"correct_answer":"B"},{"topic":"Trauma","question":"Why is the Focused Assessment with Sonography for Trauma (FAST) widely utilized in emergency resuscitation settings?","options":{"A":"It provides definitive histopathological grading of soft tissue tumors","B":"FAST ultrasound is rapid, safe, and widely available in emergency settings","C":"It is the gold standard for evaluating hematuria originating from the urethra","D":"It permanently excludes traumatic diaphragmatic rupture"},"correct_answer":"B"},{"topic":"Clinical Diagnostics","question":"A routine dipstick urinalysis is performed during a patient workup. What key components does urinalysis help detect to provide clues to the underlying etiology?","options":{"A":"Direct bilirubin, unconjugated bilirubin, and alkaline phosphatase","B":"Red blood cells, white blood cells, nitrites, and protein","C":"Prostate-specific antigen and alpha-fetoprotein","D":"Amylase, lipase, and serum calcium"},"correct_answer":"B"},{"topic":"Proctology","question":"What is the single most important clinical examination step when evaluating patients with suspected anorectal disease?","options":{"A":"Abdominal percussion for shifting dullness","B":"Digital rectal examination is the most important step in anorectal examination and can detect many important lesions","C":"Bimanual ballottement of the renal angles","D":"Measurement of venous reflux times using Doppler ultrasound"},"correct_answer":"B"},{"topic":"Neurosurgery","question":"A patient involved in a motor vehicle collision presents with retroauricular ecchymosis (Battle sign) and clear fluid draining from the ear canal (CSF otorrhea). These classic physical findings indicate:","options":{"A":"Depressed parietal calvarial fracture","B":"Skull base fracture","C":"Isolated tympanic membrane perforation","D":"Uncal brain herniation"},"correct_answer":"B"},{"topic":"Orthopedics","question":"In general clinical practice, what category of fractures is most commonly encountered?","options":{"A":"Pathological fractures secondary to bone tumors","B":"Traumatic fractures","C":"Stress fractures from metabolic bone disease","D":"Congenital avulsion fractures"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"A patient sustains an electrical burn to the arm. Physical examination reveals dry necrosis with a black eschar and complete absence of pain sensation. These features are characteristic of:","options":{"A":"Superficial second-degree burn","B":"Deep partial-thickness burn","C":"Fourth-degree burn","D":"First-degree burn"},"correct_answer":"C"},{"topic":"Burn Surgery","question":"Why is the Lund and Browder chart preferred over the adult Rule of Nines when evaluating thermal burns in pediatric patients?","options":{"A":"Pediatric patients cannot be evaluated using the Blokhin palmar method","B":"Children's body proportions differ from adults, and the Lund and Browder chart provides age-adjusted surface area estimates","C":"The adult Rule of Nines applies only to electrical and chemical burns","D":"Children rarely sustain partial-thickness burns"},"correct_answer":"B"},{"topic":"Vascular Surgery","question":"A 56-year-old patient with long-standing varicose veins exhibits prominent brownish-rust skin pigmentation, induration, and eczema around the lower calf. According to the CEAP classification of chronic venous disease, these trophic skin changes indicate:","options":{"A":"C1 chronic venous disease","B":"C2 chronic venous disease","C":"C4 chronic venous disease","D":"C6 chronic venous disease"},"correct_answer":"C"},{"topic":"Perioperative Care","question":"Why is multimodal, effective postoperative pain control prioritized in surgical recovery wards?","options":{"A":"It eliminates the requirement for preoperative smoking cessation","B":"Effective pain control improves comfort, mobilization, and recovery","C":"It converts dirty surgical wounds into clean incised wounds","D":"It accelerates the resorption of subcapsular hematomas"},"correct_answer":"B"},{"topic":"Critical Care","question":"Following a major abdominal vascular procedure, a patient's urinary output drops to less than 15 mL/hour over three consecutive hours. What conditions may low urine output indicate?","options":{"A":"Rapidly expanding intracranial volume","B":"Dehydration, shock, or renal dysfunction","C":"Spontaneous resolution of acute urinary retention","D":"Excessive intravenous fluid over-resuscitation"},"correct_answer":"B"},{"topic":"Physical Examination","question":"A thorough physical examination of the groin is essential in surgical patients because it helps identify:","options":{"A":"Enlarged lymph nodes, inguinal hernias, and undescended testes","B":"Internal hemorrhoids, anal fissures, and rectal adenocarcinoma","C":"Sigmoid volvulus and small bowel obstruction","D":"Superficial second-degree burns and fourth-degree necrosis"},"correct_answer":"A"},{"topic":"Wound Care","question":"A patient with a heavily contaminated, severe crush injury of the forearm presents 24 hours after injury. How should this wound initially be managed?","options":{"A":"Immediate primary closure with non-absorbable tension sutures","B":"Delayed presentation and crush injury require aggressive debridement and infection prevention; primary closure is usually avoided initially","C":"Application of a circumferential plaster cast without surgical debridement","D":"Cauterization of the wound margins with chemical agents"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"How does preexisting chronic respiratory disease affect an individual undergoing major surgery?","options":{"A":"It directly accelerates the biological requirements of bone healing","B":"Chronic respiratory disease increases pulmonary risk after surgery","C":"It prevents the development of postoperative hypoxemia","D":"It provides immunity against catheter-associated urinary tract infections"},"correct_answer":"B"},{"topic":"Infectious Disease","question":"A patient develops erythema, warmth, and purulent exudate along a laparotomy incision on postoperative day 6. What is the most common pathogen causing surgical site infections?","options":{"A":"Escherichia coli","B":"Staphylococcus aureus","C":"Pseudomonas aeruginosa","D":"Clostridium perfringens"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"A patient presents with painless jaundice and elevated serum alkaline phosphatase. Why is transabdominal ultrasound the first-line investigation for suspected biliary obstruction?","options":{"A":"It completely replaces the need for digital rectal examination","B":"Ultrasound is safe, noninvasive, and effective in detecting biliary dilatation and common causes of obstruction","C":"It measures intracranial pressure compliance directly","D":"It allows direct visualization of the urethral mucosa"},"correct_answer":"B"},{"topic":"Burn Surgery","question":"Inspection of a burn wound shows thin blisters, clear fluid, a pink moist wound base, and significant pain upon light touch. These features are classic for:","options":{"A":"First-degree burns","B":"Second-degree burns","C":"Third-degree burns","D":"Fourth-degree burns"},"correct_answer":"B"},{"topic":"Pulmonology","question":"A patient involved in a motor vehicle collision develops crepitus upon palpation of the soft tissues of the neck and chest. What does subcutaneous emphysema indicate?","options":{"A":"Air leakage into soft tissues, strongly suggesting injury to the lung, pleura, or airway","B":"Spontaneous rupture of an enlarged hydrocele","C":"Bacterial colonization of a clean surgical incision","D":"Acute thrombosis of the external hemorrhoidal plexus"},"correct_answer":"A"},{"topic":"Orthopedics","question":"In the biology of fracture union, what represents the single most important biological requirement for bone healing?","options":{"A":"Application of rigid external compression plates","B":"Restoration of blood supply","C":"Complete absolute bed rest for at least 12 weeks","D":"Prophylactic broad-spectrum antibiotic coverage"},"correct_answer":"B"},{"topic":"Trauma","question":"A patient arrives at the trauma center following blunt abdominal trauma. Physical examination reveals abdominal pain, guarding, a blood pressure of 80/50 mmHg, and a heart rate of 130 bpm. This clinical combination strongly suggests:","options":{"A":"Acute urinary retention secondary to benign prostatic hyperplasia","B":"Intra-abdominal bleeding with shock","C":"Uncomplicated anal fissure","D":"Spontaneous reduction of a joint dislocation"},"correct_answer":"B"},{"topic":"Vascular Surgery","question":"A patient is maintained on complete bed rest for 10 days following major pelvic surgery. Prolonged immobility increases the risk of which vascular complication?","options":{"A":"Erythroplasia of Queyrat","B":"Deep vein thrombosis","C":"Delayed rupture of a subcapsular hematoma","D":"Choledochal cyst development"},"correct_answer":"B"},{"topic":"Neurosurgery","question":"Following severe closed head trauma, a patient exhibits progressive unilateral pupillary dilation unresponsive to light. What anatomical mechanism produces this finding, and what does it indicate?","options":{"A":"Direct transection of the abducens nerve from orbital blowout","B":"Compression of cranial nerve III, which may indicate uncal herniation","C":"Compression of the facial nerve at the stylomastoid foramen","D":"Sympathetic hyperactivity secondary to bladder globes"},"correct_answer":"B"},{"topic":"Hematology","question":"What is the primary diagnostic purpose of obtaining a complete blood count (CBC) in a surgical workup?","options":{"A":"To measure the resting squeeze pressure of the anal sphincters","B":"CBC is a routine investigation used to detect anemia and infection","C":"To assess age-adjusted surface area in pediatric burns","D":"To directly evaluate lower extremity venous reflux"},"correct_answer":"B"},{"topic":"Vascular Surgery","question":"In a patient presenting with acute lower extremity arterial occlusion, which clinical finding represents the 'sixth P' and indicates severe, advanced ischemia or irreversible damage?","options":{"A":"Pain","B":"Paralysis","C":"Pallor","D":"Poikilothermia"},"correct_answer":"B"},{"topic":"Pulmonology","question":"A patient presents with blunt chest trauma and localized thoracic wall tenderness. What is the first-line investigation for evaluating pneumothorax, hemothorax, rib fractures, and mediastinal abnormalities?","options":{"A":"Non-contrast head CT","B":"Chest X-ray","C":"Arterial blood gas analysis","D":"Anorectal manometry"},"correct_answer":"B"},{"topic":"General Surgery","question":"A 19-year-old male with suspected acute appendicitis notices that his localized right lower quadrant pain suddenly becomes generalized throughout the entire abdomen, accompanied by rigid guarding. This clinical progression is typical of:","options":{"A":"Spontaneous resolution of the appendiceal obstruction","B":"Perforated appendicitis resulting in generalized peritonitis","C":"Development of an acute testicular hydrocele","D":"Acute torsion of the spermatic cord"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"An elderly patient presents with progressive obstipation and massive abdominal distension. A plain abdominal radiograph demonstrates a large, smooth, inverted U-shaped loop of bowel without haustra. This radiographic finding is characteristic of:","options":{"A":"Small bowel mechanical obstruction","B":"Sigmoid volvulus","C":"Intussusception","D":"Acute appendicitis with perforation"},"correct_answer":"B"},{"topic":"Neurology & Spine","question":"A patient presents with numbness and tingling that precisely follows an L5 dermatomal distribution on the lower leg and foot. Sensory loss following a dermatome distribution is characteristic of:","options":{"A":"Generalized diabetic autonomic neuropathy","B":"Radiculopathy or nerve root compression","C":"Acute uncal brain herniation","D":"Deep vein thrombosis of the popliteal vein"},"correct_answer":"B"},{"topic":"Infectious Disease","question":"In surgical pathology, how is the broad domain of 'surgical infection' defined?","options":{"A":"Infections caused exclusively by multidrug-resistant hospital pathogens","B":"Surgical infection includes infections requiring surgical treatment and infections occurring as complications of surgery, trauma, or wounds","C":"Infections occurring strictly within 2 hours of skin incisional closure","D":"Infections confined exclusively to the subcutaneous adipose layer"},"correct_answer":"B"},{"topic":"Proctology","question":"A 28-year-old female presents with sharp, tearing anal pain during defecation that persists for several hours afterward, accompanied by streaks of bright red blood on the toilet tissue. This symptom pattern is characteristic of:","options":{"A":"Thrombosed external hemorrhoid","B":"Anal fissure","C":"Rectal adenocarcinoma","D":"Erythroplasia of Queyrat"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"What is the primary pathological mechanism that defines obstructive jaundice?","options":{"A":"Accelerated hemolysis of red blood cells within the splenic cords","B":"Obstructive jaundice occurs when bile flow is blocked within the intrahepatic or extrahepatic biliary system","C":"Congenital deficiency of glucuronyl transferase in hepatocytes","D":"Selective impairment of renal tubular bilirubin clearance"},"correct_answer":"B"},{"topic":"Medical Documentation","question":"What multifaceted clinical, institutional, and legal role is fulfilled by an accurate, complete medical record?","options":{"A":"It serves solely as an administrative financial billing log","B":"A medical record has medical, healthcare, and legal value; it serves as a clinical communication tool and a legal document","C":"It is utilized exclusively for post-hoc academic clinical trials","D":"It serves to waive patient identification safety protocols"},"correct_answer":"B"},{"topic":"Orthopedics","question":"A patient with metastatic breast cancer sustains a femoral shaft fracture while walking across a room. Fractures occurring because the bone is weakened by preexisting disease (such as tumors, infection, or metabolic disorders) are termed:","options":{"A":"Traumatic fractures","B":"Pathological fractures","C":"Avulsion fractures","D":"Stress fractures"},"correct_answer":"B"},{"topic":"Urology","question":"In clinical evaluation, how is urinary retention defined pathophysiologically?","options":{"A":"Inability of the kidneys to filter urea and creatinine","B":"Urinary retention occurs when urine is present in the bladder but cannot be expelled normally","C":"Involuntary leakage of urine caused by uninhibited detrusor contractions","D":"Persistent passage of cloudy urine containing leukocyte casts"},"correct_answer":"B"},{"topic":"Clinical Reasoning","question":"During clinical case conferences, how does clinical discussion (clinical reasoning) synthesize positive and negative findings?","options":{"A":"It uses positive and negative findings to support the most likely diagnosis and exclude alternatives","B":"It disregards physical examination signs in favor of imaging studies","C":"It focuses solely on billing optimization","D":"It assumes that all traumatic fractures are pathological in origin"},"correct_answer":"A"},{"topic":"Perioperative Care","question":"In the postanesthesia care unit and surgical floor, what is the fundamental overarching goal of postoperative care?","options":{"A":"To accelerate wound healing by immediately removing surgical dressings","B":"The main goal of postoperative care is to ensure patient safety and promote recovery","C":"To keep the patient completely immobilized for the first 7 days","D":"To restrict oral fluid intake indefinitely"},"correct_answer":"B"},{"topic":"Perioperative Care","question":"Which combination of patient-specific risk factors significantly increases the likelihood of postoperative pulmonary complications?","options":{"A":"Young age, normal BMI, and non-smoking status","B":"Advanced age, smoking, and chronic lung disease","C":"Female sex, well-controlled hypertension, and ambulatory status","D":"Preoperative smoking cessation and adequate analgesia"},"correct_answer":"B"},{"topic":"Gastroenterology","question":"During abdominal palpation of the right upper quadrant, the patient abruptly ceases inspiration due to sharp pain when the examiner's fingers contact the gallbladder. What is this sign called?","options":{"A":"Kehr sign","B":"Positive Murphy sign","C":"Battle sign","D":"Hoffmann sign"},"correct_answer":"B"},{"topic":"Trauma & Surgery","question":"A patient with blunt abdominal trauma develops hypotension, tachycardia, and a rigid, distended abdomen. What is the clinical significance of intra-abdominal hemorrhage?","options":{"A":"It is an indolent condition that resolves with observation","B":"Intra-abdominal hemorrhage is bleeding into the abdominal cavity and is a surgical emergency","C":"It is diagnostic of primary spontaneous bacterial peritonitis","D":"It is managed exclusively with prophylactic oral antibiotics"},"correct_answer":"B"},{"topic":"Orthopedics","question":"A patient sustains a traumatic posterior hip dislocation. Why must closed reduction of a dislocated hip be performed without delay?","options":{"A":"To prevent the immediate onset of acute urinary retention","B":"Hip dislocation may compromise the blood supply to the femoral head, leading to avascular necrosis if reduction is delayed","C":"Delayed reduction causes permanent destruction of the ipsilateral sciatic nerve in 100% of cases","D":"To convert the dislocation into an old dislocation before treatment"},"correct_answer":"B"},{"topic":"Vascular Surgery","question":"In acute extremity arterial embolism, within what critical timeframe from symptom onset is ischemia generally considered reversible with achievable limb salvage?","options":{"A":"Within the first 6 hours","B":"Between 24 and 48 hours","C":"Within the first 3 weeks","D":"Any time before 72 hours"},"correct_answer":"A"},{"topic":"Clinical Practice","question":"Why is detailed clinical history taking fundamental to patient assessment?","options":{"A":"It replaces the requirement for non-contrast head CT in head trauma","B":"History taking helps identify symptoms and guides the diagnostic approach","C":"It is used exclusively to determine hospital discharge times","D":"It proves that the patient has no medication allergies"},"correct_answer":"B"},{"topic":"General Surgery","question":"What type of peritonitis is most commonly encountered in general surgical practice?","options":{"A":"Primary spontaneous bacterial peritonitis","B":"Secondary generalized peritonitis","C":"Tuberculous peritonitis","D":"Chemical starch-induced peritonitis"},"correct_answer":"B"},{"topic":"Urology","question":"What is the strict laboratory definition of hematuria?","options":{"A":"The excretion of free hemoglobin in the absence of intact cells","B":"Hematuria is defined as the presence of red blood cells in the urine","C":"The presence of cloudy, foul-smelling urine containing white blood cell casts","D":"The excretion of bile salts causing yellow-orange urine"},"correct_answer":"B"},{"topic":"Orthopedics","question":"How is a joint dislocation formally defined in anatomical terms?","options":{"A":"Incomplete microtrabecular bone compaction without joint capsule tears","B":"A dislocation is the complete or incomplete displacement of the articular surfaces from their normal anatomical relationship","C":"Transient sprain of an extra-articular ligament without displacement","D":"Aseptic avascular necrosis of an articular head within an intact socket"},"correct_answer":"B"},{"topic":"Pharmacology & Urology","question":"An elderly patient taking multiple medications develops acute urinary retention. Which drug class can precipitate retention by reducing detrusor contraction?","options":{"A":"Beta-blockers","B":"Anticholinergic drugs","C":"Alpha-1 adrenergic blockers","D":"Loop diuretics"},"correct_answer":"B"},{"topic":"Wound Care","question":"A patient presents with a clean laceration made by a surgical scalpel. What are the characteristic features of an incised wound?","options":{"A":"Extensive surrounding crush damage with devitalized skin flaps","B":"Incised wounds are produced by sharp objects and typically have clean wound edges with minimal tissue crushing","C":"Deep, narrow wound tracts containing retained foreign bodies","D":"Full-thickness cutaneous necrosis forming a dry black eschar"},"correct_answer":"B"},{"topic":"Infectious Disease","question":"An infection occurs along the incision site 18 days after an open hernia repair. How is a surgical site infection (SSI) formally classified with respect to timing?","options":{"A":"Infection occurring within 24 hours of induction of anesthesia","B":"Infection occurring within 30 days after surgery involving the incision site is classified as a surgical site infection (SSI)","C":"Infection that presents strictly between 60 and 90 days postoperatively","D":"Any infection originating outside the operative suite"},"correct_answer":"B"},{"topic":"Urology","question":"A 16-year-old male presents with sudden-onset, severe unilateral scrotal pain, swelling, and an elevated testis. Why is torsion of the spermatic cord treated as an emergency surgical condition?","options":{"A":"It universally spreads infection to the contralateral kidney within 2 hours","B":"Twisting of the spermatic cord compromises blood supply and may result in irreversible testicular ischemia and necrosis","C":"It triggers diffuse secondary peritonitis through the internal inguinal ring","D":"It invariably transforms into high-grade seminoma if not excised"},"correct_answer":"B"},{"topic":"Patient Safety","question":"Prior to transferring a patient to the operating room and initiating anesthesia, the surgical team performs a 'time-out'. What is the purpose of verifying patient identification?","options":{"A":"To ensure that billing records match insurance policies","B":"Correct patient identification is a key safety step before surgery","C":"To classify the patient's wound according to the Gustilo classification","D":"To verify that the patient has adequate pupillary light reflexes"},"correct_answer":"B"},{"topic":"Neurology & Spine","question":"On neurological examination, an adult patient exhibits a positive Babinski sign, Hoffmann sign, and sustained clonus. These findings represent:","options":{"A":"Signs of cerebellar flocculonodular lobe ataxia","B":"Pyramidal signs indicating corticospinal tract dysfunction and possible spinal cord compression","C":"Peripheral sensory polyneuropathy from vitamin deficiency","D":"Uncertain signs of pelvic ring fracture"},"correct_answer":"B"},{"topic":"Orthopedics","question":"In the pathological anatomy of traumatic joint dislocations, what are the basic primary anatomical lesions produced?","options":{"A":"Mid-diaphyseal cortical bone impaction","B":"The basic anatomical lesions of a dislocation are tears of the joint capsule and ligaments","C":"Calcification of the surrounding musculotendinous units","D":"Avascular necrosis of the periosteum"},"correct_answer":"B"},{"topic":"Neurology & Spine","question":"A patient presents with bilateral lower extremity spasticity, hyperreflexia, a distinct sensory level at T10, and urinary retention. This clinical constellation strongly suggests:","options":{"A":"Spinal cord compression syndrome","B":"Guillain-Barré syndrome","C":"Uncomplicated acute renal colic","D":"Uncal brain herniation"},"correct_answer":"A"},{"topic":"Vascular Surgery","question":"When assessing a patient with suspected acute arterial occlusion, the clinician recalls the classic signs of acute ischemia. What are the classic 5 P's, and what is the sixth P?","options":{"A":"The 5 P's are Pain, Pallor, Paresthesia, Poikilothermia, and Pulselessness; Paralysis is the sixth P and represents advanced ischemia","B":"The 5 P's are Petechiae, Purpura, Pruritus, Pyrexia, and Paralysis; Pallor is the sixth P","C":"The 5 P's are Palpitation, Polyuria, Polydipsia, Polyphagia, and Pallor; Pain is the sixth P","D":"The 5 P's are Pressure, Pneumoperitoneum, Peritonitis, Proctitis, and Paralysis; Pallor is the sixth P"},"correct_answer":"A"},{"topic":"Anatomy & Physical Exam","question":"Which two anatomical division systems are standardly used to partition the abdomen for clinical examination?","options":{"A":"The four-quadrant system and the nine-region system","B":"The sagittal-coronal plane and the oblique lumbar plane","C":"The superficial fascial layer and the retroperitoneal fascia","D":"The anterior pelvic ring and posterior retroperitoneal zone"},"correct_answer":"A"},{"topic":"General Surgery","question":"A 50-year-old male presents with sudden, excruciating epigastric pain that rapidly spreads across his entire abdomen. Physical examination reveals board-like rigidity, and an erect chest X-ray shows pneumoperitoneum under the right hemidiaphragm. These findings strongly suggest:","options":{"A":"Acute cholecystitis with biliary colic","B":"Perforated peptic ulcer","C":"Uncomplicated sigmoid volvulus","D":"Acute viral gastroenteritis"},"correct_answer":"B"},{"topic":"Orthopedics & Vascular","question":"Why is immediate neurovascular assessment of the distal extremity mandatory following any traumatic joint dislocation?","options":{"A":"Dislocations are always accompanied by underlying bone malignancy","B":"Neurovascular injuries may accompany dislocations and can threaten limb function if not recognized promptly","C":"To determine whether the patient should receive prophylactic anticholinergics","D":"To classify the dislocation under the Lund and Browder system"},"correct_answer":"B"},{"topic":"Pulmonology","question":"During percussion of the chest in a patient with thoracic trauma, abnormal air accumulation within the pleural cavity produces which percussion note?","options":{"A":"Stony dullness","B":"Hyperresonance","C":"Flatness","D":"Normal resonance"},"correct_answer":"B"},{"topic":"Wound Care","question":"On inspection of an open granulating wound, which macroscopic appearance characterizes healthy, viable granulation tissue?","options":{"A":"Pale, fibrous, dry, and completely insensitive to touch","B":"Healthy granulation tissue is bright red, well vascularized, and bleeds easily on contact","C":"Dry, leathery, and covered with a thick black eschar","D":"Yellowish, purulent, and foul-smelling"},"correct_answer":"B"},{"topic":"Vascular Surgery","question":"In a patient suffering acute arterial disruption of the lower extremity, why must revascularization be achieved within the first 6 hours?","options":{"A":"To convert the wound from Gustilo grade III to grade I","B":"Prolonged ischemia causes progressive muscle and nerve necrosis; limb salvage is best achieved when revascularization is performed within the first 6 hours","C":"To prevent the development of a positive kidney ballottement test","D":"Because collateral circulation spontaneously atrophies after 6 hours"},"correct_answer":"B"},{"topic":"General Surgery","question":"A patient presents with an acute subcutaneous swelling that is warm, erythematous, exquisitely tender, and fluctuant on palpation (a hot abscess). What is the definitive management?","options":{"A":"Prolonged observation without drainage","B":"A hot abscess is characterized by acute inflammatory signs and should be treated with incision and drainage","C":"Immediate application of a tight compressive bandage for 4 weeks","D":"Primary excision and primary tight suture closure without debridement"},"correct_answer":"B"},{"topic":"Trauma","question":"In patients sustaining severe blunt abdominal trauma, traumatic diaphragmatic rupture is significantly more common on the left side than on the right side. What anatomical factor accounts for this difference?","options":{"A":"The left hemidiaphragm lacks muscular attachments to the ribs","B":"The liver provides protection to the right hemidiaphragm, making left-sided ruptures more common","C":"The spleen generates higher intra-abdominal pressure during impact","D":"The stomach acts as a rigid wedge that tears the left crus"},"correct_answer":"B"},{"topic":"Clinical Practice","question":"In structured medical interviewing, what core components comprise the History of Present Illness (HPI)?","options":{"A":"The history of present illness describes symptom onset, progression, treatment history, and current status, forming the foundation of diagnosis","B":"A detailed listing exclusively of the patient's family pedigree over four generations","C":"The complete administrative billing record and bed assignment log","D":"Documentation limited strictly to the postoperative vital signs flow sheet"},"correct_answer":"A"},{"topic":"Colorectal & Oncology","question":"Digital rectal examination in a 65-year-old male presenting with altered bowel habits reveals a hard, irregular, fixed mass with contact bleeding. This clinical finding is highly suggestive of:","options":{"A":"Uncomplicated thrombosed external hemorrhoids","B":"Rectal cancer","C":"Acute anal fissure","D":"Benign prostatic hyperplasia"},"correct_answer":"B"},{"topic":"Urology","question":"A 70-year-old male presents with acute lower abdominal distension and inability to urinate. Transabdominal ultrasound of the pelvis is performed. What clinical information does ultrasound provide in this setting?","options":{"A":"Ultrasound can confirm bladder distension, measure residual urine, and identify causes such as enlarged prostate or bladder stones","B":"It directly measures lower extremity venous valve reflux time","C":"It provides microscopic histopathological confirmation of rectal malignancy","D":"It quantifies intracranial pressure within the Monro-Kellie fixed volume"},"correct_answer":"A"},{"topic":"Urology","question":"A patient notices gross hematuria occurring exclusively at the start of urination, with clearing of the urine stream thereafter (initial hematuria). What anatomical location does initial hematuria usually indicate?","options":{"A":"The renal cortex or glomeruli","B":"Initial hematuria usually indicates a lesion in the urethra","C":"The bladder trigone or bladder neck","D":"The gallbladder or cystic duct"},"correct_answer":"B"},{"topic":"Infectious Disease","question":"In acute surgical infections (such as acute peritonitis or deep soft tissue infection), what white blood cell count and differential are typically observed?","options":{"A":"Severe leukopenia with marked lymphocytosis","B":"White blood cell count typically increases to 15,000-20,000/mm3 with neutrophil predominance","C":"Normal total white count with isolated absolute eosinophilia","D":"Leukocytosis with 90% basophils and absent neutrophils"},"correct_answer":"B"},{"topic":"Neurosurgery","question":"According to the Monro-Kellie doctrine, which three components occupy the rigid, non-expandable intracranial cavity?","options":{"A":"The doctrine states that brain tissue, blood, and CSF occupy a fixed intracranial volume; failure of compensation results in increased intracranial pressure","B":"Dura mater, pia mater, and arachnoid membrane","C":"Cerebral cortex, cerebellum, and brainstem","D":"Arterial blood, venous blood, and capillary lymphatic fluid"},"correct_answer":"A"},{"topic":"Vascular Surgery","question":"In complex extremity vascular trauma, why does concomitant severe venous injury worsen overall limb outcomes?","options":{"A":"It accelerates bone mineralization across open fracture sites","B":"Venous injury impairs venous return, increases edema, and worsens tissue ischemia, leading to poorer limb outcomes","C":"It permanently prevents the development of the 'sixth P' (paralysis)","D":"It induces immediate systemic hypoxemia and hypercapnia"},"correct_answer":"B"},{"topic":"Pulmonology","question":"Following penetrating chest trauma, physical examination reveals hyperresonance to percussion superiorly and dullness to percussion inferiorly on the affected side. This combination of physical findings is classic for:","options":{"A":"Cardiac tamponade","B":"Hemopneumothorax","C":"Isolated tension pneumothorax","D":"Right diaphragmatic rupture"},"correct_answer":"B"},{"topic":"Pediatric Surgery","question":"A 9-month-old infant presents with episodic screaming, drawing up of the legs, vomiting, and passage of 'currant jelly' stools. What is the most common cause of intestinal obstruction in infants and young children?","options":{"A":"Intussusception","B":"Sigmoid volvulus","C":"Incarcerated femoral hernia","D":"Colonic adenocarcinoma"},"correct_answer":"A"},{"topic":"Gastroenterology","question":"In a patient with mechanical bowel obstruction, the character of abdominal pain shifts from intermittent cramping to continuous, severe pain with localized rebound tenderness. What does this transition suggest?","options":{"A":"Spontaneous functional relief of the mechanical obstruction","B":"Continuous severe pain suggests compromised blood supply and possible bowel strangulation","C":"Development of an uncomplicated choledochal cyst","D":"Onset of simple paralytic ileus secondary to hypokalemia"},"correct_answer":"B"},{"topic":"Urology","question":"On scrotal physical examination, how does the transillumination test help differentiate a testicular hydrocele from an indirect inguinal hernia?","options":{"A":"A hydrocele is negative on transillumination, whereas an inguinal hernia is positive","B":"The transillumination test helps distinguish hydrocele (positive) from inguinal hernia (negative)","C":"Both lesions transilluminate brilliantly in 100% of cases","D":"Neither lesion transilluminates under any clinical circumstances"},"correct_answer":"B"},{"topic":"Urology & Neurology","question":"A 62-year-old patient with a 20-year history of poorly controlled diabetes mellitus presents with urinary retention and a large post-void residual volume. What underlying pathophysiological mechanism accounts for this presentation?","options":{"A":"Acute bacterial obstruction of the prostatic urethra","B":"Diabetes can cause autonomic neuropathy leading to neurogenic bladder and urinary retention","C":"Direct calcification of the ureterovesical valves","D":"Spontaneous avascular necrosis of the detrusor muscle"},"correct_answer":"B"},{"topic":"Orthopedics","question":"During the recovery and rehabilitation phase following a joint or fracture injury, why is early active movement recommended?","options":{"A":"Early active movement helps maintain joint function and reduces muscle atrophy while healing progresses","B":"It converts dirty wounds into clean incised wounds","C":"It permanently eliminates the biological requirement for blood supply","D":"It ensures that open fractures do not require Gustilo classification"},"correct_answer":"A"},{"topic":"Urology & Oncology","question":"A 65-year-old male with a 40 pack-year smoking history presents with painless gross hematuria. Smoking is recognized as one of the most important risk factors for:","options":{"A":"Bladder cancer and hematuria","B":"Testicular hydrocele","C":"Choledochal cyst","D":"Sigmoid volvulus"},"correct_answer":"A"},{"topic":"Urology","question":"What immediate pathophysiological event triggers the intense, crescendo flank pain characteristic of acute renal colic?","options":{"A":"Direct ischemic necrosis of the renal pyramids","B":"Renal colic occurs when sudden obstruction causes increased pressure within the collecting system","C":"Bacterial endotoxin release into the systemic circulation","D":"Autoimmune immune-complex deposition in the glomerular basement membrane"},"correct_answer":"B"}] /*EMBEDDED_QUESTIONS*/;
+  let testPool = [];
+  let userResponses = [];
+  let currentIndex = 0;
+
+  const fileInput = document.getElementById('file-input');
+  const uploadScreen = document.getElementById('upload-screen');
+  const quizScreen = document.getElementById('quiz-screen');
+  const resultScreen = document.getElementById('result-screen');
+  const nextBtn = document.getElementById('next-btn');
+
+  // In-place Fisher–Yates Shuffle Implementation
+  function fisherYatesShuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Prepares the questions: shuffles items and re-maps option keys dynamically
+  function prepareQuizData(sourceArray) {
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const cloned = JSON.parse(JSON.stringify(sourceArray));
+    
+    // 1. Shuffle the order of the questions
+    fisherYatesShuffle(cloned);
+
+    // 2. Shuffle choices and remap keys for each question
+    return cloned.map(item => {
+      const originalEntries = Object.entries(item.options);
+      const originalCorrectKey = item.correct_answer.trim().toUpperCase();
+      const originalCorrectText = item.options[originalCorrectKey];
+
+      // Shuffle options using Fisher–Yates
+      fisherYatesShuffle(originalEntries);
+
+      const remappedOptions = {};
+      let remappedCorrectKey = '';
+
+      originalEntries.forEach(([oldKey, text], idx) => {
+        const assignedLetter = letters[idx] || String.fromCharCode(65 + idx);
+        remappedOptions[assignedLetter] = text;
+        if (text === originalCorrectText) {
+          remappedCorrectKey = assignedLetter;
+        }
+      });
+
+      return {
+        ...item,
+        options: remappedOptions,
+        correct_answer: remappedCorrectKey
+      };
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (Array.isArray(rawQuestions) && rawQuestions.length > 0) {
+      testPool = prepareQuizData(rawQuestions);
+      startQuiz();
+    }
+  });
+
+  if (fileInput) {
+    fileInput.addEventListener('change', handleFileUpload);
+  }
+
+  function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      try {
+        const json = JSON.parse(event.target.result);
+        if (!Array.isArray(json) || json.length === 0) {
+          alert("Invalid file format. Please upload a valid JSON array of questions.");
+          return;
+        }
+        rawQuestions = json;
+        testPool = prepareQuizData(rawQuestions);
+        startQuiz();
+      } catch (err) {
+        alert("Error parsing JSON file. Please ensure it contains valid JSON syntax.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function startQuiz() {
+    uploadScreen.classList.add('hidden');
+    resultScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    currentIndex = 0;
+    userResponses = [];
+    renderQuestion();
+  }
+
+  function restartQuiz() {
+    testPool = prepareQuizData(rawQuestions);
+    startQuiz();
+  }
+
+  function renderQuestion() {
+    const q = testPool[currentIndex];
+
+    document.getElementById('progress-indicator').textContent = `Question ${currentIndex + 1} of ${testPool.length}`;
+    document.getElementById('question-topic').textContent = q.topic || "General Pathology";
+    document.getElementById('question-text').textContent = q.question;
+
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    
+    optionsContainer.innerHTML = '';
+    feedbackContainer.innerHTML = '';
+    nextBtn.style.display = 'none';
+
+    nextBtn.textContent = (currentIndex === testPool.length - 1) ? 'View Evaluation' : 'Next Question';
+
+    Object.entries(q.options).forEach(([key, text]) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.setAttribute('data-key', key);
+      btn.innerHTML = `<span class="badge">${key}.</span> <span>${text}</span>`;
+      btn.onclick = () => checkAnswer(key);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(selectedKey) {
+    const q = testPool[currentIndex];
+    const correctKey = q.correct_answer.trim().toUpperCase();
+    const isCorrect = selectedKey.toUpperCase() === correctKey;
+
+    userResponses.push({
+      question: q,
+      userAnswer: selectedKey,
+      isCorrect: isCorrect
+    });
+
+    const optionButtons = document.querySelectorAll('.option-btn');
+    optionButtons.forEach(btn => {
+      btn.disabled = true;
+      const optionKey = btn.getAttribute('data-key');
+      if (optionKey === correctKey) {
+        btn.classList.add('correct-choice');
+      }
+      if (optionKey === selectedKey && !isCorrect) {
+        btn.classList.add('wrong-choice');
+      }
+    });
+
+    const feedbackContainer = document.getElementById('feedback-container');
+    const banner = document.createElement('div');
+    banner.className = `feedback-banner ${isCorrect ? 'correct' : 'incorrect'}`;
+    banner.textContent = isCorrect 
+      ? '✓ Correct!' 
+      : `✗ Incorrect. The correct answer is Option ${correctKey}.`;
+    feedbackContainer.appendChild(banner);
+
+    nextBtn.style.display = 'inline-block';
+  }
+
+  nextBtn.onclick = function() {
+    currentIndex++;
+    if (currentIndex < testPool.length) {
+      renderQuestion();
+    } else {
+      showEvaluation();
+    }
+  };
+
+  function showEvaluation() {
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+
+    const totalQuestions = userResponses.length;
+    const correctCount = userResponses.filter(r => r.isCorrect).length;
+    
+    // Exact evaluation scaled out of 10
+    const scaledScore = ((correctCount / totalQuestions) * 10).toFixed(1);
+
+    document.getElementById('final-score').textContent = `${scaledScore} / 10`;
+    document.getElementById('score-details').textContent = 
+      `Raw Score: ${correctCount} / ${totalQuestions} questions answered correctly (${((correctCount / totalQuestions) * 100).toFixed(0)}%)`;
+
+    const reviewContainer = document.getElementById('review-container');
+    reviewContainer.innerHTML = '';
+
+    userResponses.forEach((res, i) => {
+      const card = document.createElement('div');
+      card.className = `review-card ${res.isCorrect ? 'correct' : 'incorrect'}`;
+      
+      const q = res.question;
+      const userKey = res.userAnswer;
+      const correctKey = q.correct_answer.trim().toUpperCase();
+
+      card.innerHTML = `
+        <strong>${i + 1}. ${q.question}</strong>
+        <div class="user-ans">Your Answer: ${userKey}. ${q.options[userKey]}</div>
+        ${!res.isCorrect ? `<div class="correct-ans">Correct Answer: ${correctKey}.${q.options[correctKey]}</div>` : ''}
+      `;
+      reviewContainer.appendChild(card);
+    });
+  }
+
+  function exportStandaloneHTML() {
+    if (!rawQuestions || rawQuestions.length === 0) {
+      alert("No questions loaded to export.");
+      return;
+    }
+
+    const currentHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const serializedData = JSON.stringify(rawQuestions);
+
+    const compiledHTML = currentHTML.replace(
+      /\/\*EMBEDDED_QUESTIONS\*\/[\s\S]*?\/\*EMBEDDED_QUESTIONS\*\//,
+      `/*EMBEDDED_QUESTIONS*/ ${serializedData} /*EMBEDDED_QUESTIONS*/`
+    );
+
+    const blob = new Blob([compiledHTML], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pathology_quiz_shuffled.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+</script>
+
+
+
+</body></html>
