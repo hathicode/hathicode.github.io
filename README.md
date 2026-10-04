@@ -4,3 +4,4 @@
 | Subject | Module Name | Status | Action |
 | :--- | :--- | :---: | :--- |
 | 🦠 **Pathology** | Pathology full | 🟢 Active | [▶️ Launch Quiz](https://hathicode.github.io/patho.html) |
+| 🦠 **Basics of surgery** | Basics of surgery guess | 🟢 Active | [▶️ Launch Quiz](https://hathicode.github.io/bos.html) |
