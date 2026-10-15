@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathology MCQ Examination</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-border: #22c55e;
+      --success-text: #15803d;
+      --danger-bg: #fee2e2;
+      --danger-border: #ef4444;
+      --danger-text: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #0f766e;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.9rem;
+    }
+
+    .btn-secondary:hover {
+      background-color: #115e59;
+    }
+
+    .progress-bar {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .topic-tag {
+      display: inline-block;
+      background-color: #e0e7ff;
+      color: #3730a3;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .question-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: transparent;
+      text-align: left;
+      font-size: 0.95rem;
+      cursor: pointer;
+      line-height: 1.4;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .option-btn.correct-choice {
+      background-color: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+      color: var(--success-text) !important;
+      font-weight: 600;
+    }
+
+    .option-btn.wrong-choice {
+      background-color: var(--danger-bg) !important;
+      border-color: var(--danger-border) !important;
+      color: var(--danger-text) !important;
+      font-weight: 600;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .badge {
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .feedback-banner {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1.25rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feedback-banner.correct {
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .feedback-banner.incorrect {
+      background-color: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid var(--danger-border);
+    }
+
+    .quiz-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .score-banner {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-radius: 8px;
+      background-color: #f8fafc;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .score-number {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .review-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      background: white;
+    }
+
+    .review-card.correct {
+      border-left: 5px solid var(--success-border);
+    }
+
+    .review-card.incorrect {
+      border-left: 5px solid var(--danger-border);
+    }
+
+    .user-ans { color: #64748b; font-size: 0.9rem; margin-top: 0.25rem; }
+    .correct-ans { color: var(--success-text); font-weight: 600; font-size: 0.9rem; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Upload View -->
+  <div id="upload-screen" class="hidden">
+    <h1>Upload Pathology Questions</h1>
+    <p class="subtitle">Upload your JSON file to generate an interactive quiz with shuffled questions and choices.</p>
+    <div class="upload-area" onclick="document.getElementById('file-input').click()">
+      <svg width="48" height="48" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto 1rem auto; display:block;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+      </svg>
+      <p>Click here or drop your <strong>.json</strong> file</p>
+      <input type="file" id="file-input" accept=".json">
+    </div>
+  </div>
+
+  <!-- Quiz View -->
+  <div id="quiz-screen" class="">
+    <div class="quiz-header">
+      <div class="progress-bar" id="progress-indicator">Question 1 of 161</div>
+      <button class="btn btn-secondary" id="download-btn" onclick="exportStandaloneHTML()">📥 Save Offline Website</button>
+    </div>
+
+    <span class="topic-tag" id="question-topic">Laparoscopic Appendectomy</span>
+    <h2 class="question-title" id="question-text">During laparoscopic appendectomy, the surgeon accidentally avulses the appendicular artery. The immediate priority is:</h2>
+    
+    <div class="options-grid" id="options-container"><button class="option-btn" data-key="A"><span class="badge">A.</span> <span>Continue appendix dissection</span></button><button class="option-btn" data-key="B"><span class="badge">B.</span> <span>Remove the trocars</span></button><button class="option-btn" data-key="C"><span class="badge">C.</span> <span>Achieve hemostasis and control bleeding</span></button><button class="option-btn" data-key="D"><span class="badge">D.</span> <span>Convert automatically to open surgery</span></button></div>
+    <div id="feedback-container"></div>
+
+    <div class="quiz-footer">
+      <button class="btn" id="next-btn" style="display: none;">Next Question</button>
+    </div>
+  </div>
+
+  <!-- Evaluation View -->
+  <div id="result-screen" class="hidden">
+    <h1>Evaluation Complete</h1>
+    <p class="subtitle">Final performance scaled out of 10</p>
+
+    <div class="score-banner">
+      <div class="score-number" id="final-score">0 / 10</div>
+      <p id="score-details" style="color: #64748b; margin-top: 0.5rem;"></p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+      <button class="btn btn-secondary" onclick="exportStandaloneHTML()" style="flex: 1;">📥 Download Standalone Version</button>
+      <button class="btn" onclick="restartQuiz()" style="flex: 1;">Restart (Reshuffle)</button>
+    </div>
+
+    <h3>Performance Summary</h3>
+    <div class="review-list" id="review-container"></div>
+  </div>
+</div>
+
+<script>
+  let rawQuestions = /*EMBEDDED_QUESTIONS*/ [{"topic":"Operating Room Areas and Sterile Principles","question":"Which area allows personnel to wear either regular clothing or surgical attire?","options":{"A":"Restricted area","B":"Semi-restricted area","C":"Unrestricted area","D":"Sterile area"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"Which of the following is commonly found in the unrestricted area?","options":{"A":"Sterile instrument storage","B":"Handwashing sinks","C":"Staff rooms and patient-surgeon meeting rooms","D":"Operating tables"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"Before entering the semi-restricted area, personnel must wear:","options":{"A":"Sterile gloves only","B":"Surgical attire with a hood and slippers","C":"Regular clothing and mask","D":"Sterile gown and gloves"},"correct_answer":"B"},{"topic":"Operating Room Areas and Sterile Principles","question":"Which of the following is located in the semi-restricted area?","options":{"A":"Cafeteria","B":"Patient waiting room","C":"Sterile instrument area","D":"Administrative office"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"The postoperative area is considered part of the:","options":{"A":"Unrestricted area","B":"Semi-restricted area","C":"Restricted area","D":"Sterile field"},"correct_answer":"A"},{"topic":"Operating Room Areas and Sterile Principles","question":"Which item is NOT required in the restricted area?","options":{"A":"Hair cover","B":"Shoe covers","C":"Mask","D":"Street clothes"},"correct_answer":"D"},{"topic":"Operating Room Areas and Sterile Principles","question":"The operating room (OR) itself is classified as a:","options":{"A":"Unrestricted area","B":"Semi-restricted area","C":"Restricted area","D":"Public area"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"What is commonly located in OR walkways?","options":{"A":"Patient beds","B":"Handwashing sinks","C":"Cafeterias","D":"Storage lockers"},"correct_answer":"B"},{"topic":"Operating Room Areas and Sterile Principles","question":"A sterile field is established when:","options":{"A":"The patient enters the OR","B":"Surgical instruments arrive","C":"A sterile drape is applied or opened","D":"The surgeon scrubs in"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"Once the sterile field has been established, the OR door should:","options":{"A":"Remain open","B":"Be locked","C":"Be closed","D":"Be opened frequently"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"To maintain asepsis, entry and exit from the OR should be:","options":{"A":"Encouraged","B":"Restricted","C":"Unlimited","D":"Recorded only"},"correct_answer":"B"},{"topic":"Operating Room Areas and Sterile Principles","question":"All personnel entering and leaving the OR must wear:","options":{"A":"Gloves and gown","B":"Cap and mask","C":"Shoe covers only","D":"Sterile gloves only"},"correct_answer":"B"},{"topic":"Operating Room Areas and Sterile Principles","question":"Which principle of asepsis is correct?","options":{"A":"Sterile objects may touch non-sterile objects briefly.","B":"Only sterile objects should touch sterile objects.","C":"Non-sterile personnel may handle sterile instruments.","D":"Sterile technique is required only during incision."},"correct_answer":"B"},{"topic":"Operating Room Areas and Sterile Principles","question":"Which person is considered part of the sterile field?","options":{"A":"Receptionist","B":"Family member","C":"Surgeon wearing a sterile gown and gloves","D":"Visitor in street clothes"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"The center of the sterile field is:","options":{"A":"The anesthesia machine","B":"The instrument table","C":"The patient covered with sterile drapes","D":"The scrub nurse"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"A sterile person moving near non-sterile objects should:","options":{"A":"Face non-sterile objects","B":"Touch non-sterile objects carefully","C":"Turn their back to non-sterile objects and face sterile objects","D":"Walk between sterile and non-sterile areas freely"},"correct_answer":"C"},{"topic":"Operating Room Areas and Sterile Principles","question":"Sterile personnel should pass each other:","options":{"A":"Side-to-side","B":"Face-to-face or back-to-back","C":"Shoulder-to-shoulder","D":"In any manner"},"correct_answer":"B"},{"topic":"Operating Room Areas and Sterile Principles","question":"Which statement about sterile personnel is correct?","options":{"A":"They may leave and re-enter the OR freely.","B":"They should minimize movement within the sterile area.","C":"They may touch non-sterile surfaces if necessary.","D":"They do not need to maintain distance from non-sterile objects."},"correct_answer":"B"},{"topic":"Operating Room Areas and Sterile Principles","question":"Unsterile personnel should maintain at least what distance from sterile objects?","options":{"A":"5 cm","B":"10 cm","C":"20 cm","D":"30 cm (1 foot)"},"correct_answer":"D"},{"topic":"Operating Room Areas and Sterile Principles","question":"When an unsterile person passes through a sterile area, they should:","options":{"A":"Walk between two sterile fields whenever possible","B":"Face the sterile area and avoid touching it","C":"Turn their back to the sterile area","D":"Carry sterile instruments"},"correct_answer":"B"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"In single-layer bowel suturing, the needle is inserted through which layer?","options":{"A":"Mucosa only","B":"Full thickness of bowel wall","C":"Seromuscular layer without penetrating the mucosa","D":"Serosa only"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"In the in-out, out-in technique of single-layer suturing, where is the knot tied?","options":{"A":"Outside the bowel","B":"Inside the bowel lumen","C":"On the serosa","D":"In the mesentery"},"correct_answer":"B"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"In the out-in, in-out technique of single-layer suturing, the knot is tied:","options":{"A":"Inside the lumen","B":"Outside the bowel wall","C":"Within the mucosa","D":"At the mesenteric border"},"correct_answer":"B"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which of the following is an advantage of single-layer suturing?","options":{"A":"High security","B":"Reduced risk of dehiscence","C":"Less time-consuming","D":"Stronger seal than double-layer suturing"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"A major disadvantage of single-layer suturing is:","options":{"A":"Excessive tissue bulk","B":"Prone to dehiscence","C":"Causes severe stenosis","D":"Requires two surgeons"},"correct_answer":"B"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"In double-layer bowel suturing, the inner layer usually includes:","options":{"A":"Serosa only","B":"Muscularis only","C":"Full-thickness bowel wall sutures","D":"Mucosa only"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"The outer layer in double-layer bowel suturing consists of:","options":{"A":"Full-thickness sutures","B":"Mucosal sutures","C":"Seromuscular sutures","D":"Submucosal sutures"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which of the following is an advantage of double-layer suturing?","options":{"A":"Less time-consuming","B":"Reduced use of suture material","C":"Secure seal","D":"Minimal tissue bulk"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"A disadvantage of double-layer suturing is that it:","options":{"A":"Has low security","B":"Easily becomes narrowed","C":"Causes immediate leakage","D":"Cannot achieve hemostasis"},"correct_answer":"B"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which basic stitch is described as simple, easy to make, and detached?","options":{"A":"X-shaped stitch","B":"U-shaped stitch","C":"Continuous stitch","D":"O-shaped stitch"},"correct_answer":"D"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which stitch provides strong closure, controls bleeding, and minimizes tissue cutting?","options":{"A":"O-shaped stitch","B":"X-shaped stitch","C":"Running stitch","D":"Purse-string stitch"},"correct_answer":"B"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"U-shaped sutures are commonly used to:","options":{"A":"Close skin wounds","B":"Reinforce the suture line or suture the mesenteric margin","C":"Replace interrupted sutures","D":"Close blood vessels"},"correct_answer":"B"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"What is a characteristic of separate (interrupted) stitches?","options":{"A":"Entire seam sewn with one thread","B":"Quick and economical","C":"Each stitch is sewn separately","D":"Produces a bulky suture line"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which statement regarding overcast (continuous) stitches is correct?","options":{"A":"Each stitch is tied separately","B":"They require more suture material","C":"One thread is used to sew the entire seam","D":"The seam is not bulky"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"A disadvantage of overcast (continuous) stitches is that:","options":{"A":"They are slow to perform","B":"They consume excessive thread","C":"The seam may be bulky","D":"They provide poor hemostasis"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which principle of digestive tract suturing ensures close contact of serous membranes?","options":{"A":"Sutures should be vertical","B":"Sutures should be twisted tightly","C":"Sutures must be inverted inward","D":"Sutures should penetrate only mucosa"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Sutures in the digestive tract should generally be made:","options":{"A":"Vertically across the bowel","B":"Horizontally along the digestive tract","C":"Obliquely through the lumen","D":"Randomly based on surgeon preference"},"correct_answer":"A"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which of the following is NOT a characteristic of a good bowel suture?","options":{"A":"Good blood supply","B":"Complete serosal coverage of the suture line","C":"Narrowing of the bowel lumen","D":"Secure and tight closure"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which major complication occurs when bowel contents escape from the anastomosis?","options":{"A":"Stricture","B":"Ileus","C":"Anastomotic leak","D":"Fistula"},"correct_answer":"C"},{"topic":"Digestive Tract Suturing and Anastomosis","question":"Which of the following is considered a major complication of digestive tract anastomosis?","options":{"A":"Hypertension","B":"Pneumothorax","C":"Fistula","D":"Deep vein thrombosis"},"correct_answer":"C"},{"topic":"Laparoscopic Appendectomy","question":"A surgeon identifies the appendix during laparoscopic appendectomy by following which anatomical structure on the cecum?","options":{"A":"Appendices epiploicae","B":"Taeniae coli converging at the appendiceal base","C":"Ileocolic artery","D":"Mesenteric border of the ileum"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"During laparoscopic appendectomy, the appendicular artery most commonly arises from which vessel?","options":{"A":"Superior mesenteric artery directly","B":"Right colic artery","C":"Ileocolic artery","D":"Middle colic artery"},"correct_answer":"C"},{"topic":"Laparoscopic Appendectomy","question":"A patient develops sudden bradycardia immediately after CO2 insufflation. The most likely cause is:","options":{"A":"Hypovolemia","B":"Vagal stimulation due to rapid peritoneal stretching","C":"Pulmonary embolism","D":"Myocardial infarction"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"Which appendiceal position is most commonly encountered during surgery?","options":{"A":"Pelvic","B":"Retrocecal","C":"Pre-ileal","D":"Post-ileal"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"A 25-year-old woman undergoes laparoscopic appendectomy. One major advantage of laparoscopy in this patient is:","options":{"A":"Reduced operative time","B":"Better evaluation of gynecologic pathology","C":"Elimination of postoperative pain","D":"No risk of wound infection"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"The Trendelenburg position combined with left tilt during laparoscopic appendectomy primarily serves to:","options":{"A":"Increase cardiac output","B":"Improve visualization by moving small bowel away from the cecum","C":"Reduce intra-abdominal pressure","D":"Facilitate trocar insertion"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"When dividing the mesoappendix, the most important principle is:","options":{"A":"Preserve the appendicular artery","B":"Control the vascular pedicle before appendix division","C":"Divide the appendix first","D":"Remove the cecal wall"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"A gangrenous appendix with a friable base is encountered. Which method of stump closure is generally preferred?","options":{"A":"Single absorbable ligature only","B":"Endoscopic stapler","C":"No stump closure required","D":"Silk tie only"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"The most common reason for conversion from laparoscopic to open appendectomy is:","options":{"A":"Lack of pneumoperitoneum","B":"Difficult anatomy or severe inflammation","C":"Failure of anesthesia","D":"Trocar site bleeding"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"During trocar insertion, injury to which structure is most likely with an umbilical port?","options":{"A":"Common bile duct","B":"Small bowel or major vessels","C":"Appendix","D":"Bladder neck"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"A patient develops increasing end-tidal CO2 during surgery. The most likely explanation is:","options":{"A":"Carbon dioxide absorption from pneumoperitoneum","B":"Acute appendiceal perforation","C":"Hypothermia","D":"Excessive blood loss"},"correct_answer":"A"},{"topic":"Laparoscopic Appendectomy","question":"Which finding is considered the strongest indication for postoperative antibiotic therapy after appendectomy?","options":{"A":"Catarrhal appendicitis","B":"Normal appendix","C":"Perforated appendicitis with contamination","D":"Incidental appendectomy"},"correct_answer":"C"},{"topic":"Laparoscopic Appendectomy","question":"The purpose of retrieving the appendix in an endoscopic specimen bag is to:","options":{"A":"Reduce operative time","B":"Prevent contamination of the port site and wound infection","C":"Improve hemostasis","D":"Prevent pneumoperitoneum leakage"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"Which postoperative complication is more specifically associated with perforated appendicitis than uncomplicated appendicitis?","options":{"A":"Hypertrophic scar","B":"Intra-abdominal abscess","C":"Urinary retention","D":"Shoulder tip pain"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"A patient develops right lower quadrant pain and fever 7 days after laparoscopic appendectomy. The most likely diagnosis is:","options":{"A":"Trocar-site hernia","B":"Intra-abdominal abscess","C":"Pulmonary edema","D":"Deep vein thrombosis"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"During laparoscopic appendectomy, the surgeon accidentally avulses the appendicular artery. The immediate priority is:","options":{"A":"Continue appendix dissection","B":"Achieve hemostasis and control bleeding","C":"Remove the trocars","D":"Convert automatically to open surgery"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"Compared with open appendectomy, laparoscopic appendectomy is generally associated with:","options":{"A":"Higher postoperative pain scores","B":"Longer recovery time","C":"Reduced wound infection rates","D":"Greater postoperative ileus"},"correct_answer":"C"},{"topic":"Laparoscopic Appendectomy","question":"A contraindication to creating pneumoperitoneum is:","options":{"A":"Acute appendicitis","B":"Pregnancy","C":"Severe hemodynamic instability","D":"Previous abdominal surgery"},"correct_answer":"C"},{"topic":"Laparoscopic Appendectomy","question":"The most important factor in preventing postoperative stump leakage is:","options":{"A":"Use of prophylactic drains","B":"Secure closure of the appendiceal base","C":"Irrigation with antibiotics","D":"Placement of multiple trocars"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"During exploration, a normal appendix is found but a ruptured ovarian cyst is identified as the cause of symptoms. The greatest advantage of laparoscopy in this scenario is:","options":{"A":"Lower cost","B":"Ability to inspect the entire abdominal cavity and establish an alternative diagnosis","C":"Elimination of hospital stay","D":"Prevention of adhesions"},"correct_answer":"B"},{"topic":"Laparoscopic Appendectomy","question":"A patient with perforated appendicitis undergoes laparoscopic appendectomy. Evidence suggests that routine placement of an intra-abdominal drain:","options":{"A":"Always reduces abscess formation","B":"Is mandatory in all perforated cases","C":"Has not consistently shown benefit and should be individualized","D":"Eliminates the need for antibiotics"},"correct_answer":"C"},{"topic":"Laparoscopic Appendectomy","question":"The strongest predictor of postoperative intra-abdominal abscess after laparoscopic appendectomy is:","options":{"A":"Operative time longer than 60 minutes","B":"Male sex","C":"Perforated appendicitis with gross contamination","D":"Use of three trocars"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"A patient with severe dysphagia following a stroke requires nutritional support for several months. The most appropriate procedure is:","options":{"A":"PEG","B":"Janeway procedure","C":"Stamm gastrostomy","D":"Witzel procedure"},"correct_answer":"A"},{"topic":"Gastrostomy Surgery","question":"Which part of the stomach is most commonly used for creating a gastrostomy?","options":{"A":"Cardia","B":"Fundus","C":"Anterior wall of the gastric body","D":"Pylorus"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"Which statement best supports enteral feeding over parenteral feeding?","options":{"A":"It is always faster","B":"It maintains intestinal mucosal integrity","C":"It eliminates aspiration risk","D":"It requires no monitoring"},"correct_answer":"B"},{"topic":"Gastrostomy Surgery","question":"Which of the following is an absolute contraindication to PEG?","options":{"A":"Previous abdominal surgery","B":"Obesity","C":"Uncorrectable coagulopathy","D":"Mild ascites"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"Which of the following is a relative contraindication to gastrostomy?","options":{"A":"Severe peritonitis","B":"Hemodynamic instability","C":"Massive ascites","D":"Uncorrectable coagulopathy"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"PEG stands for:","options":{"A":"Percutaneous Enteric Gastroplasty","B":"Percutaneous Endoscopic Gastrostomy","C":"Permanent Endoscopic Gastroplasty","D":"Percutaneous Esophageal Gastrostomy"},"correct_answer":"B"},{"topic":"Gastrostomy Surgery","question":"Which technique is currently the most commonly performed gastrostomy procedure worldwide?","options":{"A":"Janeway gastrostomy","B":"Witzel gastrostomy","C":"Stamm gastrostomy","D":"PEG"},"correct_answer":"D"},{"topic":"Gastrostomy Surgery","question":"Who introduced PEG in 1980?","options":{"A":"Billroth and Kocher","B":"Lister and Halsted","C":"Gauderer and Ponsky","D":"Bassini and McBurney"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"Which of the following is an advantage of PEG compared with open gastrostomy?","options":{"A":"Requires laparotomy","B":"Longer recovery period","C":"Less invasive","D":"Greater postoperative pain"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"In a Stamm gastrostomy, the tube is secured using:","options":{"A":"Mesh fixation","B":"Purse-string sutures","C":"Suture the gastric serosa to the lateral abdominal wall.","D":"Stapling device only"},"correct_answer":"B"},{"topic":"Gastrostomy Surgery","question":"Which gastrostomy technique creates a serosal tunnel around the tube?","options":{"A":"Stamm","B":"PEG","C":"Witzel","D":"Janeway"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"The major advantage of the Witzel technique is:","options":{"A":"Permanent stoma creation","B":"Reduced leakage around the tube","C":"No need for sutures","D":"Better cosmetic appearance only"},"correct_answer":"B"},{"topic":"Gastrostomy Surgery","question":"Which gastrostomy technique is most suitable for permanent gastric access?","options":{"A":"PEG","B":"Stamm","C":"Janeway","D":"RIG"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"During PEG placement, transillumination is used to:","options":{"A":"Measure gastric pH","B":"Identify a safe puncture site on the abdominal wall","C":"Assess gastric emptying","D":"Detect bleeding"},"correct_answer":"B"},{"topic":"Gastrostomy Surgery","question":"Which of the following is the most common complication of gastrostomy?","options":{"A":"Gastric perforation","B":"Peristomal infection","C":"Splenic rupture","D":"Hepatic failure"},"correct_answer":"B"},{"topic":"Gastrostomy Surgery","question":"A patient develops severe abdominal pain, fever, and guarding after gastrostomy placement. The most likely complication is:","options":{"A":"Tube blockage","B":"Granulation tissue formation","C":"Peritonitis","D":"Buried bumper syndrome"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"Buried bumper syndrome is most commonly associated with:","options":{"A":"Stamm gastrostomy","B":"Janeway gastrostomy","C":"PEG tubes","D":"Witzel gastrostomy"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"Which complication can result from inadequate flushing of the gastrostomy tube?","options":{"A":"Pneumothorax","B":"Tube blockage","C":"Hemothorax","D":"Gastric volvulus"},"correct_answer":"B"},{"topic":"Gastrostomy Surgery","question":"Compared with a nasogastric tube, gastrostomy is generally preferred for:","options":{"A":"Feeding less than 7 days","B":"Emergency decompression only","C":"Long-term nutritional support","D":"Acute poisoning"},"correct_answer":"C"},{"topic":"Gastrostomy Surgery","question":"Which of the following is a serious life-threatening complication of gastrostomy?","options":{"A":"Mild granulation tissue","B":"Skin irritation","C":"Peritonitis","D":"Tube discoloration"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"What is the preferred position for a patient undergoing pleural aspiration?","options":{"A":"Prone position","B":"Supine position","C":"Sitting and leaning slightly forward","D":"Trendelenburg position"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"During pleural aspiration, the arm on the affected side should be:","options":{"A":"Placed across the chest","B":"Resting beside the body","C":"Raised to shoulder level with the hand on the head","D":"Extended behind the back"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"Why should a helper stand in front of the patient during pleural aspiration?","options":{"A":"To administer medications","B":"To support and stabilize the patient","C":"To hold the aspiration equipment","D":"To monitor blood pressure"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"The preferred aspiration site for pneumothorax is:","options":{"A":"5th intercostal space, midaxillary line","B":"7th intercostal space, posterior axillary line","C":"2nd-3rd intercostal space, midclavicular line","D":"8th intercostal space, scapular line"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"Pleural fluid is most commonly aspirated from the:","options":{"A":"2nd intercostal space, midclavicular line","B":"7th-8th intercostal space, midaxillary line","C":"3rd intercostal space, parasternal line","D":"1st intercostal space"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"In localized pleural effusion, the aspiration site should be determined primarily by:","options":{"A":"Ultrasound only","B":"Clinical examination and chest X-ray","C":"Patient preference","D":"ECG findings"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"In hemothorax, the optimal aspiration site is:","options":{"A":"At the diaphragm","B":"Above the clavicle","C":"1-2 intercostal spaces below the highest blood level","D":"Lowest point of the pleural cavity"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"Low aspiration in hemothorax is discouraged because:","options":{"A":"It is painful","B":"Blood pressure decreases","C":"Needle blockage from fibrin deposition is common","D":"It causes pneumomediastinum"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"Which local anesthetic is routinely used before pleural aspiration?","options":{"A":"Bupivacaine","B":"Lidocaine 1%","C":"Procaine 5%","D":"Ropivacaine"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"During pleural aspiration, the needle should be inserted:","options":{"A":"Along the lower border of the rib","B":"Through the center of the rib","C":"Near the upper edge of the lower rib","D":"Directly over the intercostal artery"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"Why is the upper edge of the rib selected for needle insertion?","options":{"A":"The pleura is thicker there.","B":"To avoid injury to the intercostal neurovascular bundle.","C":"It is less painful.","D":"It shortens the procedure."},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"Which device is connected to the aspiration needle to prevent air entry?","options":{"A":"Foley catheter","B":"Three-way stopcock","C":"Nasogastric tube","D":"Chest tube clamp"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"During aspiration, the stopcock should be closed before removing the syringe to:","options":{"A":"Prevent infection","B":"Prevent air from entering the pleural cavity","C":"Reduce bleeding","D":"Increase suction pressure"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"After completing pleural aspiration, the needle should be:","options":{"A":"Rotated before removal","B":"Removed gradually","C":"Withdrawn in one smooth motion","D":"Left in place for observation"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"Which of the following is NOT a recognized complication of pleural aspiration?","options":{"A":"Pneumothorax","B":"Re-expansion pulmonary edema","C":"Acute appendicitis","D":"Bleeding"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"The primary goal of pleural drainage is to:","options":{"A":"Remove mediastinal fat","B":"Re-expand the collapsed lung","C":"Increase cardiac output","D":"Reduce chest wall pain"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"Pleural drainage restores:","options":{"A":"Positive intrapleural pressure","B":"Normal negative intrapleural pressure","C":"Abdominal pressure","D":"Intracranial pressure"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"Which condition is NOT an indication for pleural drainage?","options":{"A":"Hemothorax","B":"Empyema","C":"Pneumothorax","D":"Acute gastritis"},"correct_answer":"D"},{"topic":"Pleural Drainage","question":"Pleural drainage is commonly indicated after thoracic surgery to:","options":{"A":"Improve digestion","B":"Prevent accumulation of air or fluid","C":"Prevent hypertension","D":"Treat pulmonary embolism"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"For pleural effusion, the drainage incision is commonly made at the:","options":{"A":"2nd intercostal space, midclavicular line","B":"4th intercostal space, anterior axillary line","C":"1st intercostal space","D":"Suprasternal notch"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"During pleural drainage for pneumothorax, the tube should be directed:","options":{"A":"Posteriorly and inferiorly","B":"Superiorly and anteriorly","C":"Medially toward the heart","D":"Inferiorly toward the diaphragm"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"During drainage of pleural effusion or hemothorax, the tube should be directed:","options":{"A":"Superiorly","B":"Posteriorly and inferiorly","C":"Medially","D":"Toward the clavicle"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"Before inserting the chest tube, the surgeon confirms entry into the pleural cavity by observing:","options":{"A":"Fat tissue","B":"Blood or gas escaping","C":"Muscle contraction","D":"Bone exposure"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"The skin incision for chest tube insertion is approximately:","options":{"A":"5 cm","B":"1 cm","C":"2 cm","D":"8 cm"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"During chest tube insertion, all drainage holes should be located:","options":{"A":"Outside the skin","B":"Within the pleural cavity","C":"In the chest wall muscles","D":"At the skin incision"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"Bubbling in the water-seal chamber most commonly indicates:","options":{"A":"Pleural effusion","B":"Hemothorax","C":"Pneumothorax with air leak","D":"Tube obstruction"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"Swinging (tidaling) of fluid in the drainage system generally indicates:","options":{"A":"A functioning drainage system","B":"Massive bleeding","C":"Tube dislodgement","D":"Infection"},"correct_answer":"A"},{"topic":"Pleural Drainage","question":"Why should the distal end of the drainage tube always remain submerged in water?","options":{"A":"To cool the tube","B":"To create a one-way seal preventing air entry","C":"To prevent infection","D":"To reduce pain"},"correct_answer":"B"},{"topic":"Pleural Drainage","question":"Modern pleural drainage tubes are commonly made of soft plastic with radiopaque material because they:","options":{"A":"Are cheaper than rubber","B":"Dissolve after use","C":"Can be visualized on chest X-ray","D":"Eliminate the need for drainage bottles"},"correct_answer":"C"},{"topic":"Pleural Drainage","question":"The primary purpose of the glass tube submerged in the drainage bottle is to:","options":{"A":"Increase suction pressure","B":"Measure oxygen concentration","C":"Detect blockage of the drainage tube","D":"Sterilize the pleural fluid"},"correct_answer":"C"},{"topic":"General Principles of Osteosynthesis","question":"A 28-year-old man sustains a displaced midshaft femoral fracture following a motor vehicle accident. The primary objective of osteosynthesis is to:","options":{"A":"Eliminate all fracture hematoma immediately","B":"Restore anatomical alignment while providing sufficient stability for healing","C":"Prevent any future fracture at the same site","D":"Replace the fractured bone with an implant"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"A patient undergoes compression plating of a simple transverse tibial fracture. Which type of fracture healing is MOST likely to occur?","options":{"A":"Secondary healing with abundant external callus","B":"Delayed union","C":"Primary (direct) bone healing without visible callus","D":"Fibrocartilaginous healing only"},"correct_answer":"C"},{"topic":"General Principles of Osteosynthesis","question":"Primary bone healing requires all of the following EXCEPT:","options":{"A":"Anatomical reduction","B":"Absolute stability","C":"Direct vascular continuity across the fracture","D":"Large fracture gap"},"correct_answer":"D"},{"topic":"General Principles of Osteosynthesis","question":"During direct bone healing, bone formation in the non-contact areas primarily occurs through the activity of:","options":{"A":"Chondrocytes","B":"Osteoblasts","C":"Fibroblasts","D":"Osteoclasts"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"A patient presents three days after a closed tibial fracture. Histologically, the fracture site is MOST likely characterized by:","options":{"A":"Lamellar bone formation","B":"Hematoma with inflammatory cell infiltration","C":"Mature woven bone","D":"Complete remodeling"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"The principal function of the fracture hematoma during the first phase of secondary bone healing is to:","options":{"A":"Prevent osteoblast activity","B":"Provide a temporary scaffold and biological signaling molecules","C":"Replace damaged cortical bone","D":"Produce mature lamellar bone"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"Which event is characteristic of the fibrocartilaginous callus phase?","options":{"A":"Extensive osteoclastic remodeling","B":"Differentiation of mesenchymal stem cells into fibroblasts and chondroblasts","C":"Replacement of woven bone with lamellar bone","D":"Formation of Haversian systems"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"During the transition from soft callus to hard callus, which process predominates?","options":{"A":"Fibrosis","B":"Endochondral ossification","C":"Fat necrosis","D":"Osteolysis"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"Bone remodeling restores the mechanical properties of bone primarily through:","options":{"A":"Progressive calcification only","B":"Balanced activity of osteoblasts and osteoclasts according to mechanical stress","C":"Persistent fibrocartilage formation","D":"Replacement by cortical scar tissue"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"Which implant characteristic is MOST critical for long-term fracture fixation?","options":{"A":"High electrical conductivity","B":"Mechanical strength exceeding physiological loading","C":"Ability to dissolve rapidly","D":"Maximum flexibility regardless of fracture type"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"A cancellous screw is preferred for fixation of a proximal tibial fracture because its:","options":{"A":"Fine threads compress cortical bone","B":"Deep, widely spaced threads achieve superior purchase in cancellous bone","C":"Smooth shaft minimizes compression","D":"Blunt tip avoids bone penetration"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"Which implant would provide the BEST fixation for a diaphyseal femoral fracture in an adult?","options":{"A":"Kirschner wires","B":"Intramedullary locking nail","C":"External splint only","D":"Cerclage wire alone"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"Compared with conservative treatment, one major biological advantage of successful osteosynthesis is:","options":{"A":"Elimination of bone remodeling","B":"Earlier restoration of limb function through stable fixation","C":"Complete prevention of infection","D":"Shortening of bone healing time to less than two weeks"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"A patient with severe diabetes undergoes plate fixation of a tibial fracture. Which postoperative complication is of particular concern?","options":{"A":"Hypercalcemia","B":"Osteomyelitis","C":"Pulmonary fibrosis","D":"Nephrolithiasis"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"When selecting operative treatment for a fracture, which factor generally has the LEAST influence on surgical planning?","options":{"A":"Patient's occupation","B":"Associated injuries","C":"Color of the patient's skin","D":"Availability of surgical equipment"},"correct_answer":"C"},{"topic":"General Principles of Osteosynthesis","question":"Which fracture pattern is MOST appropriately managed with an intramedullary nail?","options":{"A":"Midshaft femoral fracture","B":"Isolated patellar fracture","C":"Distal phalanx fracture","D":"Skull fracture"},"correct_answer":"A"},{"topic":"General Principles of Osteosynthesis","question":"The principal biomechanical advantage of intramedullary nailing is that it:","options":{"A":"Transfers load primarily through the implant alone","B":"Functions as a load-sharing device along the mechanical axis","C":"Completely eliminates micromotion","D":"Prevents all rotational forces without locking screws"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"An unstable comminuted tibial shaft fracture is treated with intramedullary fixation. To maximize stability, the surgeon should use:","options":{"A":"Flexible nail without locking","B":"Smooth Steinmann pin","C":"Locked intramedullary nail with proximal and distal locking screws","D":"Kirschner wires only"},"correct_answer":"C"},{"topic":"General Principles of Osteosynthesis","question":"Which statement best explains why plates may fail before fracture union?","options":{"A":"Plates stimulate excessive osteoclastic activity","B":"Inadequately rigid plates bear repetitive loading before sufficient callus develops","C":"Plates reduce blood supply to all bone permanently","D":"Plates always prevent primary bone healing"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"A buttress plate is particularly indicated for:","options":{"A":"Midshaft humeral fractures","B":"Metaphyseal fractures near the end of a long bone","C":"Rib fractures","D":"Clavicle fractures only"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"In plate fixation, mechanical load is transmitted primarily through the:","options":{"A":"Fracture hematoma","B":"Plate","C":"Periosteum","D":"Bone marrow"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"During K-wire fixation of a pediatric supracondylar humeral fracture, inserting two wires in different directions primarily improves:","options":{"A":"Cosmetic appearance","B":"Rotational stability","C":"Bone vascularity","D":"Soft tissue healing"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"Why are the exposed ends of Kirschner wires typically bent after insertion?","options":{"A":"To improve radiographic visibility","B":"To facilitate later removal and reduce wire migration","C":"To increase wire strength","D":"To stimulate periosteal healing"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"Steel cerclage wire is most commonly used to:","options":{"A":"Replace cortical screws","B":"Compress or secure bone fragments around the cortex","C":"Stabilize the medullary canal","D":"Anchor intramedullary nails"},"correct_answer":"B"},{"topic":"General Principles of Osteosynthesis","question":"A 30-year-old patient has an open comminuted tibial fracture with extensive soft tissue injury. Which factor is MOST important when deciding whether definitive osteosynthesis should be performed immediately?","options":{"A":"Patient's height","B":"Type of anesthesia available","C":"Condition of the soft tissues and overall patient stability","D":"Patient's handedness"},"correct_answer":"C"},{"topic":"Surgical Instruments Identification","question":"What surgical instrument is used to hold the skin in place when closing an incision?","options":{"A":"Kocher clamp","B":"Adson tissue forceps","C":"Mayo scissors","D":"Babcock forceps"},"correct_answer":"B"},{"topic":"Surgical Instruments Identification","question":"Which of the following instruments has three functions: cutting, hemostasis, and dissecting?","options":{"A":"Scalpel blade No. 10","B":"Electrosurgical scalpel","C":"Metzenbaum scissors","D":"Hemostatic mosquito forceps"},"correct_answer":"B"},{"topic":"Surgical Instruments Identification","question":"After amputation, what instrument is used to ensure that the bone edges do not damage the surrounding soft tissues?","options":{"A":"Gigli saw","B":"Bone rasp (bone file)","C":"Liston bone cutting forceps","D":"Periosteal elevator"},"correct_answer":"B"},{"topic":"General Principles of Surgery","question":"Which statement BEST defines practical surgery?","options":{"A":"A branch of medicine focused only on emergency operations","B":"A discipline involving the study and application of surgical procedures for diagnosis, treatment, and scientific advancement","C":"A field limited to cosmetic interventions","D":"A specialty concerned only with postoperative care"},"correct_answer":"B"},{"topic":"General Principles of Surgery","question":"The primary reason practical surgery continuously develops new techniques is to:","options":{"A":"Reduce the need for physician training","B":"Eliminate physiological responses during surgery","C":"Meet increasingly complex clinical and therapeutic demands","D":"Replace non-surgical treatment completely"},"correct_answer":"C"},{"topic":"General Principles of Surgery","question":"Surgical procedures are classified as \"mechanical actions\" because they:","options":{"A":"Depend entirely on automated machines","B":"Physically manipulate tissues or organs using manual or instrumental techniques","C":"Involve only microscopic cellular changes","D":"Function independently of human interaction"},"correct_answer":"B"},{"topic":"General Principles of Surgery","question":"Which of the following is the MOST direct consequence of surgical mechanical trauma?","options":{"A":"Complete systemic immunosuppression","B":"Physiological alterations within the body","C":"Complete loss of organ function in all patients","D":"Elimination of inflammatory responses"},"correct_answer":"B"},{"topic":"General Principles of Surgery","question":"The phrase \"surgeons must use their hands in combination with their brains\" emphasizes the importance of:","options":{"A":"Physical strength over intellectual ability","B":"Simultaneous psychomotor and cognitive skills","C":"Memorization without technical ability","D":"Mechanical instruments replacing human judgment"},"correct_answer":"B"},{"topic":"General Principles of Surgery","question":"Which scenario BEST demonstrates the integration of cognitive ability in surgery?","options":{"A":"Repeating a memorized movement without assessing the patient","B":"Adjusting a surgical technique according to tissue response during an operation","C":"Allowing instruments to guide all surgical decisions","D":"Performing surgery without preoperative planning"},"correct_answer":"B"},{"topic":"Tenorrhaphy","question":"What is the definition of tenorrhaphy?","options":{"A":"Removal of a tendon","B":"Surgical repair of a tendon by suturing its ends together","C":"Tendon transplantation","D":"Tendon lengthening"},"correct_answer":"B"},{"topic":"Tenorrhaphy","question":"The term \"tenorrhaphy\" is derived from Greek words meaning:","options":{"A":"Tendon and repair","B":"Tendon and graft","C":"Tendon and suture","D":"Tendon and motion"},"correct_answer":"C"},{"topic":"Tenorrhaphy","question":"Which of the following is NOT a purpose of tenorrhaphy?","options":{"A":"Restore tendon continuity","B":"Recover active movement","C":"Preserve tendon gliding","D":"Eliminate all scar tissue formation"},"correct_answer":"D"},{"topic":"Tenorrhaphy","question":"Which injury is classified as an open tendon injury?","options":{"A":"Sports injury","B":"Degenerative rupture","C":"Sudden forceful contraction","D":"Glass laceration"},"correct_answer":"D"},{"topic":"Tenorrhaphy","question":"A tendon rupture caused by sudden forceful muscle contraction is considered:","options":{"A":"Open injury","B":"Closed injury","C":"Penetrating injury","D":"Iatrogenic injury"},"correct_answer":"B"},{"topic":"Tenorrhaphy","question":"Primary tendon repair is generally performed:","options":{"A":"Within 24 hours of injury","B":"Within 72 hours of injury","C":"Within 1 week of injury","D":"After 2 weeks of injury"},"correct_answer":"A"},{"topic":"Tenorrhaphy","question":"Which timing of repair is associated with the best outcomes and minimal scarring?","options":{"A":"Secondary repair","B":"Delayed primary repair","C":"Primary repair","D":"Reconstruction"},"correct_answer":"C"},{"topic":"Limb Amputation and Disarticulation","question":"Amputation is best defined as:","options":{"A":"Surgical removal of skin and muscle only","B":"Surgical removal of all or part of an extremity through bone or joint","C":"Separation of two bones at a joint only","D":"Removal of a limb due to congenital abnormalities only"},"correct_answer":"B"},{"topic":"Limb Amputation and Disarticulation","question":"The primary aim of amputation is to:","options":{"A":"Remove the entire limb whenever possible","B":"Create a functional residual limb suitable for rehabilitation and prosthetic fitting","C":"Prevent future fractures","D":"Reduce surgical time"},"correct_answer":"B"},{"topic":"Limb Amputation and Disarticulation","question":"Disarticulation differs from traditional amputation because it:","options":{"A":"Always involves cutting through bone","B":"Is performed only after trauma","C":"Removes the limb through a natural joint line","D":"Cannot be performed surgically"},"correct_answer":"C"},{"topic":"Limb Amputation and Disarticulation","question":"Which physiological change of the skin occurs immediately after amputation?","options":{"A":"Bone overgrowth","B":"Skin contraction","C":"Neuroma formation","D":"Muscle hypertrophy"},"correct_answer":"B"},{"topic":"Limb Amputation and Disarticulation","question":"Edema of the residual limb is usually most pronounced on:","options":{"A":"Day 1","B":"Day 2","C":"Day 3","D":"Day 10"},"correct_answer":"C"},{"topic":"Limb Amputation and Disarticulation","question":"After amputation, muscles generally:","options":{"A":"Hypertrophy rapidly","B":"Remain unchanged","C":"Undergo contraction and retraction","D":"Ossify completely"},"correct_answer":"C"},{"topic":"Limb Amputation and Disarticulation","question":"A neuroma is:","options":{"A":"A malignant nerve tumor","B":"The physiological scar of a peripheral nerve","C":"A vascular malformation","D":"An infection of nerve tissue"},"correct_answer":"B"},{"topic":"Limb Amputation and Disarticulation","question":"Neuromas typically become painful when they:","options":{"A":"Are exposed to sunlight","B":"Develop in fibrous tissue and are compressed or stretched","C":"Are located near arteries","D":"Occur immediately after surgery"},"correct_answer":"B"}] /*EMBEDDED_QUESTIONS*/;
+  let testPool = [];
+  let userResponses = [];
+  let currentIndex = 0;
+
+  const fileInput = document.getElementById('file-input');
+  const uploadScreen = document.getElementById('upload-screen');
+  const quizScreen = document.getElementById('quiz-screen');
+  const resultScreen = document.getElementById('result-screen');
+  const nextBtn = document.getElementById('next-btn');
+
+  // In-place Fisher–Yates Shuffle Implementation
+  function fisherYatesShuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Prepares the questions: shuffles items and re-maps option keys dynamically
+  function prepareQuizData(sourceArray) {
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const cloned = JSON.parse(JSON.stringify(sourceArray));
+    
+    // 1. Shuffle the order of the questions
+    fisherYatesShuffle(cloned);
+
+    // 2. Shuffle choices and remap keys for each question
+    return cloned.map(item => {
+      const originalEntries = Object.entries(item.options);
+      const originalCorrectKey = item.correct_answer.trim().toUpperCase();
+      const originalCorrectText = item.options[originalCorrectKey];
+
+      // Shuffle options using Fisher–Yates
+      fisherYatesShuffle(originalEntries);
+
+      const remappedOptions = {};
+      let remappedCorrectKey = '';
+
+      originalEntries.forEach(([oldKey, text], idx) => {
+        const assignedLetter = letters[idx] || String.fromCharCode(65 + idx);
+        remappedOptions[assignedLetter] = text;
+        if (text === originalCorrectText) {
+          remappedCorrectKey = assignedLetter;
+        }
+      });
+
+      return {
+        ...item,
+        options: remappedOptions,
+        correct_answer: remappedCorrectKey
+      };
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (Array.isArray(rawQuestions) && rawQuestions.length > 0) {
+      testPool = prepareQuizData(rawQuestions);
+      startQuiz();
+    }
+  });
+
+  if (fileInput) {
+    fileInput.addEventListener('change', handleFileUpload);
+  }
+
+  function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      try {
+        const json = JSON.parse(event.target.result);
+        if (!Array.isArray(json) || json.length === 0) {
+          alert("Invalid file format. Please upload a valid JSON array of questions.");
+          return;
+        }
+        rawQuestions = json;
+        testPool = prepareQuizData(rawQuestions);
+        startQuiz();
+      } catch (err) {
+        alert("Error parsing JSON file. Please ensure it contains valid JSON syntax.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function startQuiz() {
+    uploadScreen.classList.add('hidden');
+    resultScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    currentIndex = 0;
+    userResponses = [];
+    renderQuestion();
+  }
+
+  function restartQuiz() {
+    testPool = prepareQuizData(rawQuestions);
+    startQuiz();
+  }
+
+  function renderQuestion() {
+    const q = testPool[currentIndex];
+
+    document.getElementById('progress-indicator').textContent = `Question ${currentIndex + 1} of ${testPool.length}`;
+    document.getElementById('question-topic').textContent = q.topic || "General Pathology";
+    document.getElementById('question-text').textContent = q.question;
+
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    
+    optionsContainer.innerHTML = '';
+    feedbackContainer.innerHTML = '';
+    nextBtn.style.display = 'none';
+
+    nextBtn.textContent = (currentIndex === testPool.length - 1) ? 'View Evaluation' : 'Next Question';
+
+    Object.entries(q.options).forEach(([key, text]) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.setAttribute('data-key', key);
+      btn.innerHTML = `<span class="badge">${key}.</span> <span>${text}</span>`;
+      btn.onclick = () => checkAnswer(key);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(selectedKey) {
+    const q = testPool[currentIndex];
+    const correctKey = q.correct_answer.trim().toUpperCase();
+    const isCorrect = selectedKey.toUpperCase() === correctKey;
+
+    userResponses.push({
+      question: q,
+      userAnswer: selectedKey,
+      isCorrect: isCorrect
+    });
+
+    const optionButtons = document.querySelectorAll('.option-btn');
+    optionButtons.forEach(btn => {
+      btn.disabled = true;
+      const optionKey = btn.getAttribute('data-key');
+      if (optionKey === correctKey) {
+        btn.classList.add('correct-choice');
+      }
+      if (optionKey === selectedKey && !isCorrect) {
+        btn.classList.add('wrong-choice');
+      }
+    });
+
+    const feedbackContainer = document.getElementById('feedback-container');
+    const banner = document.createElement('div');
+    banner.className = `feedback-banner ${isCorrect ? 'correct' : 'incorrect'}`;
+    banner.textContent = isCorrect 
+      ? '✓ Correct!' 
+      : `✗ Incorrect. The correct answer is Option ${correctKey}.`;
+    feedbackContainer.appendChild(banner);
+
+    nextBtn.style.display = 'inline-block';
+  }
+
+  nextBtn.onclick = function() {
+    currentIndex++;
+    if (currentIndex < testPool.length) {
+      renderQuestion();
+    } else {
+      showEvaluation();
+    }
+  };
+
+  function showEvaluation() {
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+
+    const totalQuestions = userResponses.length;
+    const correctCount = userResponses.filter(r => r.isCorrect).length;
+    
+    // Exact evaluation scaled out of 10
+    const scaledScore = ((correctCount / totalQuestions) * 10).toFixed(1);
+
+    document.getElementById('final-score').textContent = `${scaledScore} / 10`;
+    document.getElementById('score-details').textContent = 
+      `Raw Score: ${correctCount} / ${totalQuestions} questions answered correctly (${((correctCount / totalQuestions) * 100).toFixed(0)}%)`;
+
+    const reviewContainer = document.getElementById('review-container');
+    reviewContainer.innerHTML = '';
+
+    userResponses.forEach((res, i) => {
+      const card = document.createElement('div');
+      card.className = `review-card ${res.isCorrect ? 'correct' : 'incorrect'}`;
+      
+      const q = res.question;
+      const userKey = res.userAnswer;
+      const correctKey = q.correct_answer.trim().toUpperCase();
+
+      card.innerHTML = `
+        <strong>${i + 1}. ${q.question}</strong>
+        <div class="user-ans">Your Answer: ${userKey}. ${q.options[userKey]}</div>
+        ${!res.isCorrect ? `<div class="correct-ans">Correct Answer: ${correctKey}.${q.options[correctKey]}</div>` : ''}
+      `;
+      reviewContainer.appendChild(card);
+    });
+  }
+
+  function exportStandaloneHTML() {
+    if (!rawQuestions || rawQuestions.length === 0) {
+      alert("No questions loaded to export.");
+      return;
+    }
+
+    const currentHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const serializedData = JSON.stringify(rawQuestions);
+
+    const compiledHTML = currentHTML.replace(
+      /\/\*EMBEDDED_QUESTIONS\*\/[\s\S]*?\/\*EMBEDDED_QUESTIONS\*\//,
+      `/*EMBEDDED_QUESTIONS*/ ${serializedData} /*EMBEDDED_QUESTIONS*/`
+    );
+
+    const blob = new Blob([compiledHTML], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pathology_quiz_shuffled.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+</script>
+
+
+
+</body></html>
