@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathology MCQ Examination</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-border: #22c55e;
+      --success-text: #15803d;
+      --danger-bg: #fee2e2;
+      --danger-border: #ef4444;
+      --danger-text: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #0f766e;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.9rem;
+    }
+
+    .btn-secondary:hover {
+      background-color: #115e59;
+    }
+
+    .progress-bar {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .topic-tag {
+      display: inline-block;
+      background-color: #e0e7ff;
+      color: #3730a3;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .question-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: transparent;
+      text-align: left;
+      font-size: 0.95rem;
+      cursor: pointer;
+      line-height: 1.4;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .option-btn.correct-choice {
+      background-color: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+      color: var(--success-text) !important;
+      font-weight: 600;
+    }
+
+    .option-btn.wrong-choice {
+      background-color: var(--danger-bg) !important;
+      border-color: var(--danger-border) !important;
+      color: var(--danger-text) !important;
+      font-weight: 600;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .badge {
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .feedback-banner {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1.25rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feedback-banner.correct {
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .feedback-banner.incorrect {
+      background-color: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid var(--danger-border);
+    }
+
+    .quiz-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .score-banner {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-radius: 8px;
+      background-color: #f8fafc;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .score-number {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .review-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      background: white;
+    }
+
+    .review-card.correct {
+      border-left: 5px solid var(--success-border);
+    }
+
+    .review-card.incorrect {
+      border-left: 5px solid var(--danger-border);
+    }
+
+    .user-ans { color: #64748b; font-size: 0.9rem; margin-top: 0.25rem; }
+    .correct-ans { color: var(--success-text); font-weight: 600; font-size: 0.9rem; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Upload View -->
+  <div id="upload-screen" class="hidden">
+    <h1>Upload Pathology Questions</h1>
+    <p class="subtitle">Upload your JSON file to generate an interactive quiz with shuffled questions and choices.</p>
+    <div class="upload-area" onclick="document.getElementById('file-input').click()">
+      <svg width="48" height="48" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto 1rem auto; display:block;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+      </svg>
+      <p>Click here or drop your <strong>.json</strong> file</p>
+      <input type="file" id="file-input" accept=".json">
+    </div>
+  </div>
+
+  <!-- Quiz View -->
+  <div id="quiz-screen" class="">
+    <div class="quiz-header">
+      <div class="progress-bar" id="progress-indicator">Question 1 of 106</div>
+      <button class="btn btn-secondary" id="download-btn" onclick="exportStandaloneHTML()">📥 Save Offline Website</button>
+    </div>
+
+    <span class="topic-tag" id="question-topic">Hematology - Anemia Syndrome</span>
+    <h2 class="question-title" id="question-text">Regarding the pathophysiological classification of anemia, which of the following is NOT one of the recognized primary pathophysiological categories?</h2>
+    
+    <div class="options-grid" id="options-container"><button class="option-btn" data-key="A"><span class="badge">A.</span> <span>Blood loss</span></button><button class="option-btn" data-key="B"><span class="badge">B.</span> <span>Increased red blood cell destruction (hemolysis)</span></button><button class="option-btn" data-key="C"><span class="badge">C.</span> <span>Microcytic hypochromic classification</span></button><button class="option-btn" data-key="D"><span class="badge">D.</span> <span>Decreased red blood cell production</span></button></div>
+    <div id="feedback-container"></div>
+
+    <div class="quiz-footer">
+      <button class="btn" id="next-btn" style="display: none;">Next Question</button>
+    </div>
+  </div>
+
+  <!-- Evaluation View -->
+  <div id="result-screen" class="hidden">
+    <h1>Evaluation Complete</h1>
+    <p class="subtitle">Final performance scaled out of 10</p>
+
+    <div class="score-banner">
+      <div class="score-number" id="final-score">0 / 10</div>
+      <p id="score-details" style="color: #64748b; margin-top: 0.5rem;"></p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+      <button class="btn btn-secondary" onclick="exportStandaloneHTML()" style="flex: 1;">📥 Download Standalone Version</button>
+      <button class="btn" onclick="restartQuiz()" style="flex: 1;">Restart (Reshuffle)</button>
+    </div>
+
+    <h3>Performance Summary</h3>
+    <div class="review-list" id="review-container"></div>
+  </div>
+</div>
+
+<script>
+  let rawQuestions = /*EMBEDDED_QUESTIONS*/ [{"topic":"Clinical Cardiovascular Examination","question":"Which heart valve is normally auscultated at the cardiac apex?","options":{"A":"Aortic valve","B":"Pulmonary valve","C":"Tricuspid valve","D":"Mitral valve"},"correct_answer":"D"},{"topic":"Clinical Cardiovascular Examination","question":"Which valve is best auscultated at the right second intercostal space near the sternum?","options":{"A":"Mitral valve","B":"Tricuspid valve","C":"Aortic valve","D":"Pulmonary valve"},"correct_answer":"C"},{"topic":"Clinical Cardiovascular Examination","question":"A patient has a blowing murmur throughout systole, loudest at the apex and radiating toward the axilla. Which cardiac lesion is most consistent with this finding?","options":{"A":"Aortic stenosis","B":"Mitral stenosis","C":"Mitral regurgitation","D":"Aortic regurgitation"},"correct_answer":"C"},{"topic":"Clinical Cardiovascular Examination","question":"A patient has a PMI measuring 3.5 cm in diameter. Which interpretation is most appropriate?","options":{"A":"The finding is within the expected normal range.","B":"The finding suggests possible left ventricular enlargement.","C":"The finding confirms isolated right atrial enlargement.","D":"The finding indicates reduced systemic vascular resistance."},"correct_answer":"B"},{"topic":"Clinical Cardiovascular Examination","question":"During cardiac auscultation, a student hears a prolonged sound between the first and second heart sounds. Which finding is most consistent with this observation?","options":{"A":"A normal first heart sound","B":"A normal second heart sound","C":"A cardiac murmur","D":"A normal carotid upstroke"},"correct_answer":"C"},{"topic":"Examination of the Vascular System","question":"Which venous system carries most of the venous blood from the lower limbs?","options":{"A":"Great saphenous venous system","B":"Small saphenous venous system","C":"Superficial venous system","D":"Deep venous system"},"correct_answer":"D"},{"topic":"Examination of the Vascular System","question":"What is the main function of venous valves in the lower limbs?","options":{"A":"To increase arterial pressure","B":"To prevent retrograde blood flow","C":"To increase capillary permeability","D":"To generate arterial pulsations"},"correct_answer":"B"},{"topic":"Examination of the Vascular System","question":"Which bedside test assesses superficial saphenous valve incompetence by percussion?","options":{"A":"Perthes test","B":"Homans' sign","C":"Hepatojugular reflux test","D":"Schwartz test"},"correct_answer":"D"},{"topic":"Examination of the Vascular System","question":"During the Allen test, the examiner releases pressure over the ulnar artery while continuing to compress the radial artery. The palm flushes within 4 seconds. What does this finding indicate?","options":{"A":"The ulnar artery is patent.","B":"The radial artery is occluded.","C":"Both arteries are occluded.","D":"The ulnar artery is completely occluded."},"correct_answer":"A"},{"topic":"Basic Electrocardiography","question":"What is the normal PR interval?","options":{"A":"0.12-0.20 seconds","B":"0.04-0.10 seconds","C":"0.20-0.30 seconds","D":"0.30-0.40 seconds"},"correct_answer":"A"},{"topic":"Basic Electrocardiography","question":"Which ECG component represents ventricular depolarization?","options":{"A":"P wave","B":"T wave","C":"QRS complex","D":"PR segment"},"correct_answer":"C"},{"topic":"Basic Electrocardiography","question":"What is the standard ECG voltage calibration?","options":{"A":"1 mV = 5 mm","B":"1 mV = 20 mm","C":"1 mV = 10 mm","D":"1 mV = 25 mm"},"correct_answer":"C"},{"topic":"Basic Electrocardiography","question":"What does the PR interval measure?","options":{"A":"The time from the onset of atrial depolarization to the onset of ventricular depolarization","B":"The duration of ventricular repolarization alone","C":"The time from the end of ventricular depolarization to the end of repolarization","D":"The time between two successive ventricular depolarizations"},"correct_answer":"A"},{"topic":"Basic Electrocardiography","question":"An ECG shows a tall R wave in V5 and an S wave in V2. Their amplitudes sum to 38 mm. Which interpretation is most appropriate according to the Sokolow-Lyon criterion?","options":{"A":"The finding confirms a normal ECG.","B":"The finding establishes right atrial enlargement.","C":"The finding indicates first-degree AV block.","D":"The finding supports left ventricular hypertrophy."},"correct_answer":"D"},{"topic":"Basic Electrocardiography","question":"Which finding most strongly supports left atrial enlargement rather than right atrial enlargement?","options":{"A":"Tall, peaked P waves in leads II, III, and aVF","B":"Broad, notched P waves in lead II","C":"ST-segment elevation in leads II, III, and aVF","D":"An increased sum of S in V2 and R in V5"},"correct_answer":"B"},{"topic":"Basic Electrocardiography","question":"A patient presents with acute chest pain. The ECG shows ST-segment elevation in leads I, aVL, V5, and V6. Which myocardial region is most likely involved?","options":{"A":"Inferior wall","B":"Anteroseptal region","C":"Lateral wall","D":"Right atrium"},"correct_answer":"C"},{"topic":"Basic Electrocardiography","question":"An ECG is recorded at a paper speed of 25 mm/s. The RR interval measures 18 small squares. What is the approximate heart rate?","options":{"A":"60 beats/min","B":"75 beats/min","C":"83 beats/min","D":"100 beats/min"},"correct_answer":"C"},{"topic":"Cardiovascular Syndromes and Common Investigations","question":"Which of the following is classified as a subjective (functional) symptom of left heart failure?","options":{"A":"Pulsus alternans","B":"Paroxysmal nocturnal dyspnea (PND)","C":"Central cyanosis","D":"Leftward displacement of the apex beat"},"correct_answer":"B"},{"topic":"Cardiovascular Syndromes and Common Investigations","question":"What is the primary underlying anatomical abnormality responsible for the development of chronic venous insufficiency (CVI)?","options":{"A":"Arterial wall calcification and atherosclerosis","B":"Venous valvular incompetence","C":"Lymphatic vessel obstruction","D":"Microvascular vasospasm"},"correct_answer":"B"},{"topic":"Cardiovascular Syndromes and Common Investigations","question":"Which condition is characteristically associated with sudden, severe, tearing chest pain that often radiates to the interscapular region of the back?","options":{"A":"Acute pericarditis","B":"Acute aortic dissection","C":"Acute myocardial infarction","D":"Pulmonary embolism"},"correct_answer":"B"},{"topic":"Cardiovascular Syndromes and Common Investigations","question":"A 62-year-old woman receiving chemotherapy for ovarian cancer presents with sudden-onset shortness of breath and right-sided pleuritic chest pain. Her ECG demonstrates sinus tachycardia. Which investigation is generally the preferred initial diagnostic imaging test to confirm pulmonary embolism when she is hemodynamically stable and has no contraindication to contrast?","options":{"A":"Coronary angiography","B":"CT pulmonary angiography (CTPA)","C":"24-hour Holter monitoring","D":"Transesophageal echocardiography (TEE)"},"correct_answer":"B"},{"topic":"Endocrine Symptoms","question":"Which of the following endocrine disorders can present with constipation?","options":{"A":"Hypothyroidism","B":"Adrenal insufficiency","C":"Hypogonadism","D":"Hypocalcemia"},"correct_answer":"A"},{"topic":"Endocrine Symptoms","question":"Which of the following endocrine disorders can present with hyperhidrosis?","options":{"A":"Hyperthyroidism","B":"Primary hyperaldosteronism","C":"Hyperglycemia","D":"Cushing syndrome"},"correct_answer":"A"},{"topic":"Endocrine Symptoms","question":"Which of the following endocrine disorders can present with hyperpigmentation?","options":{"A":"Addison disease","B":"Hashimoto thyroiditis","C":"Hyperthyroidism","D":"Hypopituitarism"},"correct_answer":"A"},{"topic":"Endocrine Symptoms","question":"Which of the following endocrine disorders can present with hirsutism?","options":{"A":"Acromegaly","B":"Androgen deficiency","C":"Hypogonadism","D":"Primary adrenal insufficiency"},"correct_answer":"A"},{"topic":"Adrenal Disorders","question":"According to ACTH dependence, into how many major categories can Cushing syndrome be classified?","options":{"A":"1","B":"2","C":"3","D":"4"},"correct_answer":"B"},{"topic":"Adrenal Disorders","question":"Which of the following is the most common clinical manifestation of Cushing syndrome?","options":{"A":"Abnormal fat distribution","B":"Striae","C":"Polyuria","D":"Polydipsia"},"correct_answer":"A"},{"topic":"Adrenal Disorders","question":"Conn syndrome results from excess secretion of which of the following hormones?","options":{"A":"Cortisol","B":"Androgens","C":"Aldosterone","D":"Glucagon"},"correct_answer":"C"},{"topic":"Adrenal Disorders","question":"Which of the following features distinguishes secondary adrenal insufficiency from primary adrenal insufficiency?","options":{"A":"Hyperpigmentation","B":"Polyuria","C":"Hypoglycemia","D":"Polydipsia"},"correct_answer":"A"},{"topic":"Diabetes Mellitus","question":"Which of the following mechanisms contributes to hepatic hyperglycemia?","options":{"A":"Increased adipose tissue lipolysis","B":"Increased glycogen production","C":"Increased glucose production","D":"Increased lipid synthesis"},"correct_answer":"C"},{"topic":"Diabetes Mellitus","question":"Which of the following tissues is insulin-responsive and requires insulin to facilitate glucose uptake into cells?","options":{"A":"Brain","B":"Liver","C":"Kidney","D":"Intestine"},"correct_answer":"B"},{"topic":"Diabetes Mellitus","question":"Which of the following is a diagnostic criterion for prediabetes?","options":{"A":"HbA1c > 6.0%","B":"HbA1c ≥ 7.0%","C":"HbA1c 5.7-6.4%","D":"HbA1c 5.6-6.5%"},"correct_answer":"C"},{"topic":"Diabetes Mellitus","question":"Which of the following is a diagnostic criterion for diabetes mellitus?","options":{"A":"HbA1c ≤ 6.0%","B":"HbA1c ≥ 6.5%","C":"HbA1c ≥ 6.4%","D":"HbA1c > 7.0%"},"correct_answer":"B"},{"topic":"Endocrine Investigations","question":"Constipation is commonly encountered in which of the following conditions?","options":{"A":"Hypothyroidism","B":"Hyperthyroidism","C":"Adrenal insufficiency","D":"Diabetes insipidus"},"correct_answer":"A"},{"topic":"Endocrine Investigations","question":"Facial flushing may occur in which of the following conditions?","options":{"A":"Hypothyroidism","B":"Cushing syndrome","C":"Conn syndrome","D":"Carcinoid syndrome"},"correct_answer":"D"},{"topic":"Endocrine Investigations","question":"Weight loss may occur in all of the following conditions EXCEPT:","options":{"A":"Hypothyroidism","B":"Hyperthyroidism","C":"Chronic adrenal insufficiency","D":"Diabetes mellitus"},"correct_answer":"A"},{"topic":"Endocrine Investigations","question":"Hirsutism may occur in which of the following conditions?","options":{"A":"Polycystic ovary syndrome (PCOS)","B":"Hypopituitarism","C":"Hypothyroidism","D":"Adrenal insufficiency"},"correct_answer":"A"},{"topic":"Hematology - Approach to the Patient","question":"Which of the following is the most accurate characteristic of 'Petechiae'?","options":{"A":"Large raised purpuric nodules greater than 10 mm","B":"Small (< 3 mm), flat, red-purple hemorrhagic spots that do not blanch on pressure","C":"Erythematous macules that blanch completely upon diascopy","D":"Subcutaneous blood collections accompanied by tissue elevation and fluctuance"},"correct_answer":"B"},{"topic":"Hematology - Approach to the Patient","question":"To detect small lymph nodes in the supraclavicular region, especially in cases of suspected early metastasis, what action should the examiner ask the patient to perform?","options":{"A":"Turn the head completely to the contralateral side","B":"Take a deep breath or perform a Valsalva maneuver","C":"Hyperextend the cervical spine while coughing","D":"Swallow water repeatedly"},"correct_answer":"B"},{"topic":"Hematology - Approach to the Patient","question":"Spoon-shaped nails (koilonychia), characterized by loss of luster, longitudinal ridges, and concave depression, are most commonly encountered in which of the following conditions?","options":{"A":"Vitamin B12 deficiency","B":"Iron deficiency anemia","C":"Acute myeloid leukemia","D":"Aplastic anemia"},"correct_answer":"B"},{"topic":"Hematology - Approach to the Patient","question":"When examining a mass in the left hypochondrium, which of the following characteristics helps the physician identify it as splenomegaly (an enlarged spleen)?","options":{"A":"The mass is resonant to percussion and ballotable posteriorly","B":"The mass moves downward with inspiration, has a palpable notch on its medial border, is dull to percussion, and cannot be separated from the costal margin","C":"The mass is fixed to the retroperitoneum and does not move with respiration","D":"The mass extends directly into the pelvis without crossing the midline"},"correct_answer":"B"},{"topic":"Hematology - Approach to the Patient","question":"During the degradation process of hemoglobin, through what sequence of color changes over time does an 'Ecchymosis' (bruise) pass before disappearing?","options":{"A":"Yellow → Green → Blue → Red/purple","B":"Red/purple → Blue → Green → Yellow → Brown","C":"Brown → Red/purple → Yellow → Green","D":"Blue → Yellow → Red/purple → Brown"},"correct_answer":"B"},{"topic":"Hematology - Approach to the Patient","question":"Distinguish the clinical purposes of the two hair examination tests (hair pull test vs. hair tug test):","options":{"A":"Hair pull test assesses fungal infection; hair tug test assesses hair follicle density","B":"Hair pull test assesses active hair shedding (telogen); hair tug test assesses hair-shaft strength/fragility","C":"Hair pull test assesses scalp sebum production; hair tug test assesses androgen receptor levels","D":"Hair pull test assesses cuticle damage; hair tug test assesses total hair count"},"correct_answer":"B"},{"topic":"Hematology - Approach to the Patient","question":"A 10-year-old male patient is admitted to the hospital due to a painful, swollen right knee joint following minor trauma while playing soccer. Family history: maternal uncle frequently suffers from joint swelling, pain, and prolonged bleeding from minor cuts. Physical examination: right knee joint is markedly swollen, warm, with restricted range of motion, and ecchymosis under the skin of the thigh area. Which of the following initial diagnoses is most appropriate?","options":{"A":"Immune thrombocytopenic purpura (ITP)","B":"Hemophilia (X-linked, hemophilia A/B) with hemarthrosis","C":"Septic arthritis caused by Staphylococcus aureus","D":"Henoch-Schönlein purpura (IgA vasculitis)"},"correct_answer":"B"},{"topic":"Hematology - Approach to the Patient","question":"A 45-year-old female patient presents with a feeling of heaviness and fullness in the left abdomen. Physical examination: the left hypochondrial region is elevated, the lower border of the spleen has passed the umbilicus but has not reached the iliac crest, and the area of splenic dullness is increased. What grade of splenomegaly does this patient have?","options":{"A":"Hackett grade 2","B":"Hackett grade 3","C":"Hackett grade 4","D":"Hackett grade 5"},"correct_answer":"C"},{"topic":"Hematology - Anemia Syndrome","question":"In healthy adults, which type of hemoglobin accounts for the majority?","options":{"A":"HbF (fetal hemoglobin)","B":"HbA2","C":"HbA (~95-98%)","D":"HbS"},"correct_answer":"C"},{"topic":"Hematology - Anemia Syndrome","question":"Regarding the pathophysiological classification of anemia, which of the following is NOT one of the recognized primary pathophysiological categories?","options":{"A":"Decreased red blood cell production","B":"Increased red blood cell destruction (hemolysis)","C":"Blood loss","D":"Microcytic hypochromic classification"},"correct_answer":"D"},{"topic":"Hematology - Anemia Syndrome","question":"All of the following are clinical features of acute anemia EXCEPT:","options":{"A":"Sudden onset of dizziness and postural faintness","B":"Tachycardia and hypotension","C":"Koilonychia and brittle ridged nails","D":"Acute skin and conjunctival pallor"},"correct_answer":"C"},{"topic":"Hematology - Anemia Syndrome","question":"Which of the following conditions is a classic cause of microcytic anemia?","options":{"A":"Vitamin B12 deficiency","B":"Folate deficiency","C":"Iron deficiency anemia","D":"Aplastic anemia"},"correct_answer":"C"},{"topic":"Hematology - Anemia Syndrome","question":"Physiologically, under normal conditions, approximately what percentage of senescent red blood cells are removed/die each day?","options":{"A":"About 1% per day","B":"About 5% per day","C":"About 10% per day","D":"About 0.1% per day"},"correct_answer":"A"},{"topic":"Hematology - Anemia Syndrome","question":"Iron deficiency anemia is characterized by all of the following features EXCEPT:","options":{"A":"Decreased serum ferritin","B":"Decreased serum iron","C":"Increased Total Iron-Binding Capacity (TIBC)","D":"Elevated serum ferritin and transferrin saturation"},"correct_answer":"D"},{"topic":"Hematology - Anemia Syndrome","question":"A patient presents with normocytic, normochromic anemia accompanied by an increased reticulocyte count, elevated indirect bilirubin, and increased serum iron. Which of the following pathophysiological mechanisms is most appropriate?","options":{"A":"Defective bone marrow DNA synthesis","B":"Increased red blood cell destruction (hemolytic anemia)","C":"Chronic occult gastrointestinal blood loss","D":"Renal erythropoietin deficiency"},"correct_answer":"B"},{"topic":"Hematology - Anemia Syndrome","question":"Ferritin is the primary storage form of iron in the body, located intracellularly. Ferritin levels are elevated in which of the following conditions?","options":{"A":"Pure nutritional iron deficiency","B":"Inflammation, chronic disease, iron overload, and malignancy","C":"Severe postpartum hemorrhage","D":"Celiac sprue with isolated iron malabsorption"},"correct_answer":"B"},{"topic":"Hematology - Anemia Syndrome","question":"Acute blood loss is characterized by all of the following features EXCEPT:","options":{"A":"Normocytic normochromic red cells initially","B":"Reticulocyte elevation within several days","C":"Microcytic hypochromic indices and depleted iron stores at onset","D":"Eventual drop in hemoglobin after fluid extravasation/hemodilution"},"correct_answer":"C"},{"topic":"Hematology - Anemia Syndrome","question":"A 45-year-old male presents with fatigue and exertional dyspnea. Physical exam: pale skin and conjunctivae, normal heart and clear lungs. CBC: RBC = 3.3 x 10^12/L; Hb = 10.5 g/dL; WBC = 9.8 x 10^9/L; PLT = 370 x 10^9/L; MCH = 32 pg. Which initial diagnosis is most appropriate?","options":{"A":"Severe acute hemolytic crisis","B":"Mild chronic normochromic anemia","C":"Severe megaloblastic pancytopenia","D":"Microcytic hypochromic thalassemia major"},"correct_answer":"B"},{"topic":"Hematology - Anemia Syndrome","question":"A 35-year-old female who gave birth 3 months ago presents with frequent dizziness, headache, loss of appetite, and hair loss. Past history: postpartum hemorrhage. CBC: Hb = 8 g/dL; MCV = 72 fL; MCH = 24 pg. Which description of anemia is most appropriate?","options":{"A":"Macrocytic normochromic anemia","B":"Moderate iron deficiency (microcytic, hypochromic) anemia","C":"Normocytic normochromic aplastic anemia","D":"Warm autoimmune hemolytic anemia"},"correct_answer":"B"},{"topic":"Hematology - Anemia Syndrome","question":"A 52-year-old female patient is admitted to the emergency department due to hematemesis of bright red blood (~1000 mL), presenting with anxiety and agitation. Vital signs: Pulse = 105 bpm, BP = 90/60 mmHg, RR = 25 breaths/min. What is the initial clinical assessment of the severity of acute anemia in this patient?","options":{"A":"Mild compensated blood loss (< 5% volume)","B":"Moderate-to-severe acute anemia from acute blood loss with early hypovolemia","C":"Chronic microcytic anemia without hemodynamic consequence","D":"Refractory aplastic pancytopenia"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"By definition, what is the most important feature that differentiates purpura from other cutaneous hyperemic lesions (such as erythema)?","options":{"A":"Purpura is always intensely pruritic","B":"Purpura does not blanch on pressure, whereas erythema blanches completely","C":"Purpura is accompanied by localized skin warmth","D":"Purpura fades completely within 30 minutes"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"An 'ecchymosis' (bruise) is defined as a hemorrhagic lesion with a diameter greater than how many millimeters?","options":{"A":"Greater than 3 mm","B":"Greater than 5 mm","C":"Greater than 10 mm","D":"Greater than 25 mm"},"correct_answer":"C"},{"topic":"Hematology - Diagnosis of Purpura","question":"Among central causes of thrombocytopenia, which of the following conditions is the most common acquired cause?","options":{"A":"Congenital amegakaryocytic thrombocytopenia","B":"Aplastic anemia / bone marrow failure (including drug- or chemotherapy-induced suppression)","C":"Wiskott-Aldrich syndrome","D":"Bernard-Soulier syndrome"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"Hemostasis requires interaction among three key components: (1) vessel wall, (2), and (3). What are (2) and (3)?","options":{"A":"Red blood cells and fibrinogen","B":"Platelets and plasma coagulation factors","C":"Endothelial cells and lymphocytes","D":"Calcium ions and complement proteins"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"If a patient presents with hemorrhage occurring under multiple morphologic patterns such as petechiae, purpuric spots, superficial ecchymoses, epistaxis, and gingival bleeding, which etiology is most appropriate?","options":{"A":"Isolated Factor VIII deficiency","B":"Thrombocytopenia (platelet disorder / primary hemostasis defect)","C":"Isolated Factor IX deficiency","D":"Antithrombin III deficiency"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"Among the following causes of bleeding/hemorrhage, which one is NOT due to vascular wall injury?","options":{"A":"Scurvy (Vitamin C deficiency)","B":"Henoch-Schönlein purpura","C":"Immune thrombocytopenic purpura (ITP) or hemophilia","D":"Senile purpura"},"correct_answer":"C"},{"topic":"Hematology - Diagnosis of Purpura","question":"A 28-year-old female patient had pharyngitis 1 week ago. She now presents with non-pruritic, painless petechiae on the anterior aspect of both lower legs, accompanied by bilateral knee pain. Which initial diagnosis is most appropriate?","options":{"A":"Aplastic anemia","B":"Henoch-Schönlein purpura (IgA vasculitis)","C":"Hemophilia A","D":"Acute myeloid leukemia"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"A 52-year-old male is admitted due to hematemesis of bright red blood (~500 mL) and melena with a foul odor. Findings: fatigue, somnolence, Pulse = 100 bpm, BP = 90/60 mmHg. What is the initial clinical evaluation of the severity of bleeding?","options":{"A":"Mild bleeding without volume loss","B":"Moderate bleeding","C":"Severe catastrophic exsanguination","D":"Insignificant mucosal oozing"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"A patient presents with clinical purpura. Laboratory test results reveal a normal platelet count, but the bleeding time (BT) is prolonged. Which of the following causes is most appropriate?","options":{"A":"Hemophilia A","B":"Platelet function disorder (qualitative platelet defect) or von Willebrand disease","C":"Factor VII deficiency","D":"Primary polycythemia vera"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"What is the prominent clinical feature suggesting purpura due to a vascular wall etiology?","options":{"A":"Spontaneous hemarthrosis of weight-bearing joints","B":"Palpable purpura on the lower limbs, symmetrically distributed, with normal platelet count and coagulation tests","C":"Massive intramuscular hematomas following venipuncture","D":"Isolated mucosal bleeding with profound thrombocytopenia"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"The mechanism of thrombocytopenia in 'hypersplenism' is classified into which of the following categories?","options":{"A":"Impaired megakaryocyte maturation in bone marrow","B":"Increased splenic sequestration/pooling and destruction of platelets","C":"Autoantibody-mediated complement lysis in renal capillaries","D":"Accelerated consumption via disseminated intravascular coagulation"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"A 5-year-old male underwent dental extraction; after 4 days, persistent oozing hemorrhage from the wound persisted. Labs: PLT = 250 x 10^9/L; PT = 14s; APTT = 87.4s; Fibrinogen = 2.1 g/L. Family history: maternal uncle has a similar bleeding condition. Which diagnosis is most appropriate?","options":{"A":"Immune thrombocytopenia","B":"Hemophilia (A or B)","C":"Glanzmann thrombasthenia","D":"Factor VII deficiency"},"correct_answer":"B"},{"topic":"Hematology - Diagnosis of Purpura","question":"An 8-year-old male pediatric patient is admitted due to periumbilical abdominal pain and bilateral knee joint pain. Exam: petechial and purpuric lesions concentrated on lower legs and buttocks, slightly palpable above the skin surface, symmetrically distributed. Labs: PLT = 280 G/L, BT normal, Tourniquet test positive. Which diagnosis is most appropriate?","options":{"A":"Henoch-Schönlein purpura (IgA vasculitis)","B":"Idiopathic thrombocytopenic purpura","C":"Meningococcemia","D":"Hemophilia A"},"correct_answer":"A"},{"topic":"Hematology - Diagnosis of Purpura","question":"A 24-year-old female presents with multiple spontaneous bruises (ecchymoses) on her arms and legs, along with gingival bleeding during tooth brushing; no fever, no organomegaly. Labs: PLT = 45 G/L, BT prolonged, PT and aPTT normal. Which mechanism of hemorrhage is most strongly suspected?","options":{"A":"Coagulation factor deficiency","B":"Platelet (primary hemostasis) defect due to thrombocytopenia (consistent with ITP)","C":"Systemic fibrinolysis","D":"Vascular wall collagen dysplasia"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"In a complete blood count (CBC), what is the role of the reticulocyte index (Retic)?","options":{"A":"Differentiates intravascular from extravascular hemolysis","B":"Assesses bone marrow erythropoietic response (regenerative vs. non-regenerative anemia)","C":"Measures total serum iron binding saturation","D":"Evaluates qualitative platelet aggregation defects"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"Which of the following cases represents an appropriate clinical indication for bone marrow aspiration and biopsy?","options":{"A":"Uncomplicated iron deficiency anemia responsive to oral iron","B":"Unexplained cytopenias/pancytopenia or suspected acute leukemia, myelodysplasia, or myeloma","C":"Mild physiological leukocytosis during pregnancy","D":"Isolated microcytic anemia with known beta-thalassemia trait"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"The following laboratory tests evaluate the plasma coagulation pathway EXCEPT:","options":{"A":"Prothrombin Time (PT)","B":"Activated Partial Thromboplastin Time (aPTT)","C":"Bleeding Time (BT)","D":"Thrombin Time (TT)"},"correct_answer":"C"},{"topic":"Hematology - Basic Investigations","question":"Which of the following statements is correct regarding the bleeding time (BT) test?","options":{"A":"BT evaluates the intrinsic plasma coagulation cascade","B":"BT assesses primary hemostasis (platelet number/function and vessel wall); it is prolonged in thrombocytopenia and normal in factor deficiencies","C":"BT is prolonged in isolated Hemophilia A","D":"BT monitors warfarin anticoagulation efficacy"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"During the plasma coagulation cascade, which factor plays a central role in amplifying the coagulation cascade?","options":{"A":"Factor XIIa","B":"Thrombin (Factor IIa)","C":"Factor VIIa","D":"Tissue factor"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"The following statements regarding the Direct Coombs test are correct EXCEPT:","options":{"A":"It detects antibodies or complement bound directly to the patient's red blood cell surface","B":"It is positive in autoimmune hemolytic anemia","C":"It is designed to detect free, unbound antibodies circulating in the patient's serum","D":"Anti-human globulin reagent is used to induce agglutination"},"correct_answer":"C"},{"topic":"Hematology - Basic Investigations","question":"A 36-year-old male is admitted due to severe vomiting and watery diarrhea 8-10 times/day with dehydration (oliguria, sunken eyes, skin turgor with slow recoil). Which CBC parameter is most likely to show prominent alteration?","options":{"A":"Profound leukopenia","B":"Elevated Hematocrit/hemoglobin/RBC count (hemoconcentration from dehydration)","C":"Severe macrocytosis (elevated MCV)","D":"Marked reticulocytopenia"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"Prothrombin time (PT) is a test assessing plasma coagulation. Which statement is correct regarding PT?","options":{"A":"PT evaluates the intrinsic pathway (Factors VIII, IX, XI, XII)","B":"PT assesses the extrinsic and common pathways (VII, X, V, II, fibrinogen) and is used with INR to monitor warfarin","C":"PT is prolonged in isolated Hemophilia A","D":"PT is primarily used to monitor unfractionated heparin therapy"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"In the Coombs test, what is the primary purpose of using Anti-Human Globulin (AHG) reagent?","options":{"A":"To lyse complement-coated erythrocytes","B":"AHG cross-links antibody (IgG) or complement coating red cells, causing visible agglutination","C":"To neutralize non-specific circulating immunoglobulins","D":"To digest red cell surface sialic acid"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"A 32-year-old female presents with fatigue, pallor, poor appetite, and postural dizziness. CBC: RBC = 2.1 x 10^12/L; Hb = 7.9 g/dL; Hct = 29%; MCV = 138 fL; MCH = 38 pg. Which initial classification of anemia is most appropriate?","options":{"A":"Microcytic hypochromic anemia","B":"Moderate macrocytic anemia","C":"Normocytic normochromic anemia","D":"Aplastic pancytopenia"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"A 3-year-old male child is admitted due to pallor, poor appetite, and abdominal distension. Peripheral blood shows microcytic, hypochromic anemia. Hemoglobin electrophoresis: HbA = 93%, HbF = 0.9%, HbA2 = 6.1%. Which initial diagnosis is most appropriate?","options":{"A":"Alpha-thalassemia trait","B":"Beta-thalassemia (elevated HbA2 > 3.5%)","C":"Severe iron deficiency anemia","D":"Sickle cell anemia (HbSS)"},"correct_answer":"B"},{"topic":"Hematology - Basic Investigations","question":"A 45-year-old male with chronic alcoholism develops upper GI bleeding on day 3 of admission. Coagulation profile: PT = 45.6s; INR = 3.96; Fibrinogen = 1.7 g/L; APTT = 49.7s. Which initial diagnosis is most appropriate?","options":{"A":"Congenital Hemophilia A","B":"Acquired coagulopathy due to liver disease/cirrhosis (decreased synthesis of clotting factors)","C":"Immune thrombocytopenic purpura","D":"Primary hyperfibrinolysis"},"correct_answer":"B"},{"topic":"Respiratory / Renal Review","question":"Which of the following commonly causes a dry cough?","options":{"A":"Bronchiectasis","B":"Chronic bronchitis","C":"Bronchial asthma","D":"Pleural effusion"},"correct_answer":"D"},{"topic":"Respiratory / Renal Review","question":"Hyperresonant percussion note of the lung is found in which of the following?","options":{"A":"Pulmonary consolidation","B":"Pleural effusion","C":"Emphysema","D":"Lung tumor"},"correct_answer":"C"},{"topic":"Respiratory / Renal Review","question":"When is a pleural friction rub heard?","options":{"A":"Localized pleural effusion","B":"Early-stage pleural effusion","C":"Pleural effusion with pulmonary consolidation","D":"Pleural effusion with pneumothorax"},"correct_answer":"B"},{"topic":"Respiratory / Renal Review","question":"A 24-year-old man suddenly develops right-sided stabbing chest pain and dyspnea at rest. Exam: decreased chest expansion on the right, absent tactile vocal fremitus on the right, hyperresonant percussion note on the right, and absent vesicular breath sounds. RR = 28 breaths/min. What is the most likely diagnosis?","options":{"A":"Pleural effusion","B":"Lobar pneumonia","C":"Pneumothorax","D":"Obstructive atelectasis"},"correct_answer":"C"},{"topic":"Respiratory / Renal Review","question":"A 71-year-old male is admitted for oliguria and serum creatinine elevation over 2 days. Microscopic urine sediment examination reveals numerous coarse muddy brown granular casts and renal tubular epithelial cells. What is the most appropriate diagnosis?","options":{"A":"Acute tubular necrosis","B":"Acute cystitis","C":"Nephrotic syndrome","D":"Orthostatic proteinuria"},"correct_answer":"A"},{"topic":"Respiratory / Renal Review","question":"A 35-year-old male has no edema, normal blood pressure, and normal renal function. Daytime UPCR is 1000 mg/g, while overnight collected urine protein is 25 mg/8 hours. What is the most appropriate diagnosis?","options":{"A":"Proteinuria due to glomerular injury","B":"Proteinuria due to tubular injury","C":"Orthostatic proteinuria","D":"Post-renal proteinuria"},"correct_answer":"C"},{"topic":"Respiratory / Renal Review","question":"A patient presents with red urine containing blood clots. Sediment examination shows isomorphic RBCs without RBC casts. Which feature is most consistent with the origin of hematuria?","options":{"A":"Typical glomerular hematuria","B":"Hematuria due to tubular injury","C":"Extra-glomerular hematuria","D":"Hematuria due to nephrotic syndrome"},"correct_answer":"C"},{"topic":"Respiratory / Renal Review","question":"A 72-year-old male is admitted due to gross hematuria with numerous blood clots, suprapubic pain, and urinary retention. BP = 100/65 mmHg, HR = 108 bpm. Which management step should be prioritized?","options":{"A":"Schedule an outpatient urology visit within 1 month","B":"Repeat urinalysis after 6 months","C":"Order UPCR and UACR before deciding management","D":"Emergency referral for urinary tract obstruction"},"correct_answer":"D"},{"topic":"Respiratory / Renal Review","question":"A 70-year-old male with severe pneumonia is receiving oxygen therapy with FiO2 = 33%. ABG shows PaO2 = 60 mmHg. Based on the PaO2/FiO2 ratio (~182), what is the degree of hypoxemia in this patient?","options":{"A":"Normal","B":"Mild","C":"Moderate","D":"Severe"},"correct_answer":"C"},{"topic":"Respiratory / Renal Review","question":"Which of the following is the most likely diagnosis based on a chest X-ray demonstrating blunting of the right costophrenic angle?","options":{"A":"Right-sided pneumothorax","B":"Right-sided pleural effusion","C":"Right lower lobe pneumonia","D":"Right lower lobe atelectasis"},"correct_answer":"B"},{"topic":"Thyroid Diagnostics","question":"What type of test results is characteristic of hyperthyroidism caused by a pituitary disorder (TSH-secreting adenoma)?","options":{"A":"TSH decreased, FT4 decreased","B":"TSH elevated, FT4 elevated","C":"TSH elevated, FT4 decreased","D":"TSH decreased, FT4 elevated"},"correct_answer":"B"},{"topic":"Thyroid Diagnostics","question":"Which laboratory findings are consistent with primary hypothyroidism?","options":{"A":"Elevated TSH, decreased FT4","B":"Decreased TSH, decreased FT4","C":"Decreased TSH, elevated FT4","D":"Normal TSH, elevated FT4"},"correct_answer":"A"},{"topic":"Gastroenterology and Musculoskeletal","question":"A 38-year-old male complains of a burning retrosternal sensation that occurs 30 minutes after eating and worsens when lying down. He also reports an acid taste in his mouth. Symptoms are temporarily relieved by antacids. What is the most likely diagnosis?","options":{"A":"Achalasia","B":"Gastroesophageal reflux disease","C":"Esophageal spasm","D":"Angina pectoris"},"correct_answer":"B"},{"topic":"Gastroenterology and Musculoskeletal","question":"A patient vomits dark red blood mixed with food particles and coffee-ground material. Which clinical symptom is this, and what is its primary anatomical origin?","options":{"A":"Hemoptysis from respiratory tract","B":"Hematemesis from upper GI tract","C":"Melena from lower GI tract","D":"Hematochezia from rectum"},"correct_answer":"B"},{"topic":"Gastroenterology and Musculoskeletal","question":"A 28-year-old female presents with fatigue and mild scleral icterus. Labs: Total Bilirubin = 4.8 mg/dL, Direct Bilirubin = 0.5 mg/dL, Hemoglobin = 7.5 g/dL, Reticulocytes = 8%, LDH = 850 U/L, ALT/AST normal. Urinalysis: absent bilirubin, elevated urobilinogen. Which pattern best describes her laboratory findings?","options":{"A":"Hepatocellular jaundice","B":"Pre-hepatic (Hemolytic) jaundice","C":"Post-hepatic (Obstructive) jaundice","D":"Intrahepatic cholestasis"},"correct_answer":"B"},{"topic":"Gastroenterology and Musculoskeletal","question":"Abdominal paracentesis on a cirrhotic patient with ascites reveals: Ascitic Fluid Albumin = 0.6 g/dL; Simultaneous Serum Albumin = 2.1 g/dL. What is the Serum-Ascites Albumin Gradient (SAAG) and its pathophysiology?","options":{"A":"SAAG = 1.5 g/dL (High gradient, indicates portal hypertension)","B":"SAAG = 0.6 g/dL (Low gradient, indicates peritoneal tuberculosis)","C":"SAAG = 2.7 g/dL (High gradient, indicates nephrotic syndrome)","D":"SAAG = 0.3 g/dL (Low gradient, indicates peritoneal carcinomatosis)"},"correct_answer":"A"},{"topic":"Gastroenterology and Musculoskeletal","question":"A 42-year-old patient with an isolated serum Gamma-Glutamyl Transferase (GGT) level of 320 U/L (Normal < 50 U/L) has completely normal ALT, AST, ALP, and Bilirubin levels. What common clinical factor most frequently induces isolated GGT elevation?","options":{"A":"Alcohol intake","B":"Choledocholithiasis","C":"Acute viral hepatitis B","D":"Hemolytic anemia"},"correct_answer":"A"},{"topic":"Gastroenterology and Musculoskeletal","question":"A 25-year-old athlete undergoes knee examination. With the knee flexed at 15 degrees, the examiner applies a medially directed force to the lateral aspect of the knee (valgus stress). This test assesses the integrity of the:","options":{"A":"Lateral collateral ligament (LCL)","B":"Medial collateral ligament (MCL)","C":"Anterior cruciate ligament (ACL)","D":"Posterior cruciate ligament (PCL)"},"correct_answer":"B"},{"topic":"Gastroenterology and Musculoskeletal","question":"A 28-year-old male with suspected ankylosing spondylitis undergoes spine mobility assessment. Two marks are made 10 cm apart on his lower back while standing. Upon maximal forward flexion, the distance increases by only 2 cm (total 12 cm). Which test was performed?","options":{"A":"Schober's test","B":"Thomas' test","C":"Lasègue's test","D":"Ely's test"},"correct_answer":"A"},{"topic":"Neurology","question":"The symptoms of right cranial nerve I (CrN I) injury are:","options":{"A":"Unilateral anisocoria","B":"Unilateral anosmia","C":"Bilateral anosmia","D":"Bilateral anisocoria"},"correct_answer":"B"},{"topic":"Neurology","question":"Which of the following features are true when describing a patient with a right peripheral cranial nerve VII palsy?","options":{"A":"Forehead wrinkles disappear on the right, unable to fully close the right eye, and the face distorts toward the right when smiling.","B":"Forehead wrinkles disappear on the left, unable to fully close the right eye, and the face distorts toward the left when smiling.","C":"Forehead wrinkles disappear on the left, unable to fully close the left eye, and the face distorts toward the left when smiling.","D":"Forehead wrinkles disappear on the right, unable to fully close the right eye, and the face distorts toward the left when smiling."},"correct_answer":"D"},{"topic":"Neurology","question":"If a patient hears better with the tuning fork applied to his mastoid process than with it in the air beside his ear, the best inference is:","options":{"A":"The patient is normal.","B":"The patient must have a lesion of the organ of Corti.","C":"The patient has a conduction lesion, a mechanical impediment such as wax in the auditory canal, a damaged drum, or immobility of the ossicles.","D":"The patient has a neurosensory lesion in the organ of Corti or in the auditory nerve."},"correct_answer":"C"},{"topic":"Neurology","question":"Which cranial nerve has purely motor functions?","options":{"A":"CrN II","B":"CrN VII","C":"CrN XII","D":"CrN V"},"correct_answer":"C"}] /*EMBEDDED_QUESTIONS*/;
+  let testPool = [];
+  let userResponses = [];
+  let currentIndex = 0;
+
+  const fileInput = document.getElementById('file-input');
+  const uploadScreen = document.getElementById('upload-screen');
+  const quizScreen = document.getElementById('quiz-screen');
+  const resultScreen = document.getElementById('result-screen');
+  const nextBtn = document.getElementById('next-btn');
+
+  // In-place Fisher–Yates Shuffle Implementation
+  function fisherYatesShuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Prepares the questions: shuffles items and re-maps option keys dynamically
+  function prepareQuizData(sourceArray) {
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const cloned = JSON.parse(JSON.stringify(sourceArray));
+    
+    // 1. Shuffle the order of the questions
+    fisherYatesShuffle(cloned);
+
+    // 2. Shuffle choices and remap keys for each question
+    return cloned.map(item => {
+      const originalEntries = Object.entries(item.options);
+      const originalCorrectKey = item.correct_answer.trim().toUpperCase();
+      const originalCorrectText = item.options[originalCorrectKey];
+
+      // Shuffle options using Fisher–Yates
+      fisherYatesShuffle(originalEntries);
+
+      const remappedOptions = {};
+      let remappedCorrectKey = '';
+
+      originalEntries.forEach(([oldKey, text], idx) => {
+        const assignedLetter = letters[idx] || String.fromCharCode(65 + idx);
+        remappedOptions[assignedLetter] = text;
+        if (text === originalCorrectText) {
+          remappedCorrectKey = assignedLetter;
+        }
+      });
+
+      return {
+        ...item,
+        options: remappedOptions,
+        correct_answer: remappedCorrectKey
+      };
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (Array.isArray(rawQuestions) && rawQuestions.length > 0) {
+      testPool = prepareQuizData(rawQuestions);
+      startQuiz();
+    }
+  });
+
+  if (fileInput) {
+    fileInput.addEventListener('change', handleFileUpload);
+  }
+
+  function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      try {
+        const json = JSON.parse(event.target.result);
+        if (!Array.isArray(json) || json.length === 0) {
+          alert("Invalid file format. Please upload a valid JSON array of questions.");
+          return;
+        }
+        rawQuestions = json;
+        testPool = prepareQuizData(rawQuestions);
+        startQuiz();
+      } catch (err) {
+        alert("Error parsing JSON file. Please ensure it contains valid JSON syntax.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function startQuiz() {
+    uploadScreen.classList.add('hidden');
+    resultScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    currentIndex = 0;
+    userResponses = [];
+    renderQuestion();
+  }
+
+  function restartQuiz() {
+    testPool = prepareQuizData(rawQuestions);
+    startQuiz();
+  }
+
+  function renderQuestion() {
+    const q = testPool[currentIndex];
+
+    document.getElementById('progress-indicator').textContent = `Question ${currentIndex + 1} of ${testPool.length}`;
+    document.getElementById('question-topic').textContent = q.topic || "General Pathology";
+    document.getElementById('question-text').textContent = q.question;
+
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    
+    optionsContainer.innerHTML = '';
+    feedbackContainer.innerHTML = '';
+    nextBtn.style.display = 'none';
+
+    nextBtn.textContent = (currentIndex === testPool.length - 1) ? 'View Evaluation' : 'Next Question';
+
+    Object.entries(q.options).forEach(([key, text]) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.setAttribute('data-key', key);
+      btn.innerHTML = `<span class="badge">${key}.</span> <span>${text}</span>`;
+      btn.onclick = () => checkAnswer(key);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(selectedKey) {
+    const q = testPool[currentIndex];
+    const correctKey = q.correct_answer.trim().toUpperCase();
+    const isCorrect = selectedKey.toUpperCase() === correctKey;
+
+    userResponses.push({
+      question: q,
+      userAnswer: selectedKey,
+      isCorrect: isCorrect
+    });
+
+    const optionButtons = document.querySelectorAll('.option-btn');
+    optionButtons.forEach(btn => {
+      btn.disabled = true;
+      const optionKey = btn.getAttribute('data-key');
+      if (optionKey === correctKey) {
+        btn.classList.add('correct-choice');
+      }
+      if (optionKey === selectedKey && !isCorrect) {
+        btn.classList.add('wrong-choice');
+      }
+    });
+
+    const feedbackContainer = document.getElementById('feedback-container');
+    const banner = document.createElement('div');
+    banner.className = `feedback-banner ${isCorrect ? 'correct' : 'incorrect'}`;
+    banner.textContent = isCorrect 
+      ? '✓ Correct!' 
+      : `✗ Incorrect. The correct answer is Option ${correctKey}.`;
+    feedbackContainer.appendChild(banner);
+
+    nextBtn.style.display = 'inline-block';
+  }
+
+  nextBtn.onclick = function() {
+    currentIndex++;
+    if (currentIndex < testPool.length) {
+      renderQuestion();
+    } else {
+      showEvaluation();
+    }
+  };
+
+  function showEvaluation() {
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+
+    const totalQuestions = userResponses.length;
+    const correctCount = userResponses.filter(r => r.isCorrect).length;
+    
+    // Exact evaluation scaled out of 10
+    const scaledScore = ((correctCount / totalQuestions) * 10).toFixed(1);
+
+    document.getElementById('final-score').textContent = `${scaledScore} / 10`;
+    document.getElementById('score-details').textContent = 
+      `Raw Score: ${correctCount} / ${totalQuestions} questions answered correctly (${((correctCount / totalQuestions) * 100).toFixed(0)}%)`;
+
+    const reviewContainer = document.getElementById('review-container');
+    reviewContainer.innerHTML = '';
+
+    userResponses.forEach((res, i) => {
+      const card = document.createElement('div');
+      card.className = `review-card ${res.isCorrect ? 'correct' : 'incorrect'}`;
+      
+      const q = res.question;
+      const userKey = res.userAnswer;
+      const correctKey = q.correct_answer.trim().toUpperCase();
+
+      card.innerHTML = `
+        <strong>${i + 1}. ${q.question}</strong>
+        <div class="user-ans">Your Answer: ${userKey}. ${q.options[userKey]}</div>
+        ${!res.isCorrect ? `<div class="correct-ans">Correct Answer: ${correctKey}.${q.options[correctKey]}</div>` : ''}
+      `;
+      reviewContainer.appendChild(card);
+    });
+  }
+
+  function exportStandaloneHTML() {
+    if (!rawQuestions || rawQuestions.length === 0) {
+      alert("No questions loaded to export.");
+      return;
+    }
+
+    const currentHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const serializedData = JSON.stringify(rawQuestions);
+
+    const compiledHTML = currentHTML.replace(
+      /\/\*EMBEDDED_QUESTIONS\*\/[\s\S]*?\/\*EMBEDDED_QUESTIONS\*\//,
+      `/*EMBEDDED_QUESTIONS*/ ${serializedData} /*EMBEDDED_QUESTIONS*/`
+    );
+
+    const blob = new Blob([compiledHTML], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pathology_quiz_shuffled.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+</script>
+
+
+
+</body></html>
